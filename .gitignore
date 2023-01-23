@@ -105,3 +105,4 @@ dist
 
 # Yarn lockfile
 yarn.lock
+package-lock.json
