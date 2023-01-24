@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 var createError = require("http-errors");
 var express = require("express");
 
@@ -8,7 +10,6 @@ var logger = require("morgan");
 var sequelize = require("./models/dbconfig");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
 
 // automatically creating table on startup
 sequelize.sync({ force: true }).then(async () => {
@@ -33,7 +34,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
