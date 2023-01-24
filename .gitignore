@@ -108,3 +108,7 @@ yarn.lock
 
 # Package lockfile
 package-lock.json
+
+# Sqlite databases
+dev.sqlite
+test.sqlite
