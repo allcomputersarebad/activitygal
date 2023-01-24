@@ -7,4 +7,4 @@ router.get("/", function (req, res, next) {
   res.render("index", { title: "Express", auth: req.auth });
 });
 
-module.exports = router;
+export default router;
