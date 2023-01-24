@@ -3,12 +3,10 @@ import "dotenv/config";
 import express from "express";
 import logger from "morgan";
 
-import config from "./config";
+import config from "./config.js";
 import basicAuth from "express-basic-auth";
-const restrict = basicAuth(config.auth);
 
-import "./models";
-
+import db from "./models";
 import routes from "./routes";
 
 import createError from "http-errors";
@@ -25,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "pug");
 
 app.use("/", routes.index);
-app.use("/admin", restrict, routes.admin);
+if (config.auth) app.use("/admin", basicAuth(config.auth), routes.admin);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -42,5 +40,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+db.sequelize.sync();
 
 export default app;
