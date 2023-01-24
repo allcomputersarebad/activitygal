@@ -1,52 +1,15 @@
-// const { Model, DataTypes } = require("sequelize");
-const sequelize = require("./dbconfig");
-// const Gallery = require("./gallery");
-
-// class Photo extends Model {}
-
-// Photo.init(
-//   {
-//     // Model attributes are defined here
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//     },
-//     description: {
-//       type: DataTypes.TEXT,
-//     },
-//     references: {
-//       model: Gallery,
-//       key: "id",
-//     },
-//   },
-//   {
-//     // Other model options go here
-//     sequelize, // pass the connection instance
-//     modelName: "photo",
-//     // timestamps: false,
-//   }
-// );
-
-// Photo.belongsTo(Gallery); // Photo belongs to Gallery
-
-// module.exports = Photo;
-
-module.exports = (sequelize, DataTypes) => {
-  const Photo = sequelize.define("photo", {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-    },
-    description: {
-      type: DataTypes.TEXT,
-    },
+export default (db, DataTypes) => {
+  const Photo = db.define("Photo", {
+    caption: { type: DataTypes.TEXT },
+    title: { type: DataTypes.TEXT },
   });
 
   Photo.associate = (models) => {
     Photo.belongsTo(models.Gallery, {
-      foreignKey: {
-        allowNull: false,
-      },
+      foreignKey: { allowNull: true },
+    });
+    Photo.belongsTo(models.Page, {
+      foreignKey: { allowNull: true },
     });
   };
 

@@ -1,10 +1,11 @@
 import express from "express";
 
-const router = express.Router();
+const adminRouter = express.Router();
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express", auth: req.auth });
+adminRouter.get("/", function (req, res, next) {
+  console.log("admin route", req.auth);
+  res.render("index", { title: "Express" + req.auth.user, auth: req.auth });
 });
 
-export default router;
+export default adminRouter;

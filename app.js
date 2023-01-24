@@ -3,10 +3,13 @@ import "dotenv/config";
 import express from "express";
 import logger from "morgan";
 
-import auth from "./config/auth";
+import config from "./config";
+import basicAuth from "express-basic-auth";
+const restrict = basicAuth(config.auth);
 
-import indexRouter from "./routes/index";
-import adminRouter from "./routes/admin";
+import "./models";
+
+import routes from "./routes";
 
 import createError from "http-errors";
 
@@ -21,8 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "pug");
 
-app.use("/", indexRouter);
-app.use("/admin", auth, adminRouter);
+app.use("/", routes.index);
+app.use("/admin", restrict, routes.admin);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

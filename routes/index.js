@@ -1,10 +1,14 @@
 import express from "express";
 
-const router = express.Router();
+import adminRouter from "./admin.js";
+
+const indexRouter = express.Router();
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
+indexRouter.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
 
-export default router;
+const routes = { index: indexRouter, admin: adminRouter };
+
+export default routes;
