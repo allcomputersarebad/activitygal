@@ -112,3 +112,7 @@ package-lock.json
 # Sqlite databases
 dev.sqlite
 test.sqlite
+
+# mock data
+mock_data
+.DS_Store

@@ -1,39 +1,33 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-var createError = require("http-errors");
-var express = require("express");
+import express from "express";
+import logger from "morgan";
 
-var bodyParser = require("body-parser");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-var sequelize = require("./models/dbconfig");
+import basicAuth from "express-basic-auth";
 
-var indexRouter = require("./routes/index");
+import indexRouter from "./routes/index";
+import adminRouter from "./routes/admin";
 
-// automatically creating table on startup
-sequelize.sync({ force: true }).then(async () => {
-  console.log("db is ready...");
-});
+import createError from "http-errors";
 
 const app = express();
 
-// Configuring body parser middleware
-// https://expressjs.com/en/resources/middleware/body-parser.html
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "pug");
-
 app.use(logger("dev"));
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded());
+
+app.set("view engine", "pug");
+app.use(express.static("public"));
 
 app.use("/", indexRouter);
+
+const adminAuth = basicAuth({
+  users: { admin: process.env.PHOTO_ADMIN },
+  challenge: true,
+});
+app.use("/admin", adminAuth, adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
