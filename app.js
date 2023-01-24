@@ -1,10 +1,13 @@
-import dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
 
 import express from "express";
 import logger from "morgan";
 
 import basicAuth from "express-basic-auth";
+const admin = basicAuth({
+  users: { admin: process.env.PHOTO_ADMIN },
+  challenge: true,
+});
 
 import indexRouter from "./routes/index";
 import adminRouter from "./routes/admin";
@@ -15,19 +18,15 @@ const app = express();
 
 app.use(logger("dev"));
 
-app.use(express.json());
-app.use(express.urlencoded());
-
-app.set("view engine", "pug");
 app.use(express.static("public"));
 
-app.use("/", indexRouter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const adminAuth = basicAuth({
-  users: { admin: process.env.PHOTO_ADMIN },
-  challenge: true,
-});
-app.use("/admin", adminAuth, adminRouter);
+app.set("view engine", "pug");
+
+app.use("/", indexRouter);
+app.use("/admin", admin, adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
