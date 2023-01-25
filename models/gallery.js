@@ -14,9 +14,7 @@ export default (db, DataTypes) => {
   });
 
   Gallery.associate = (models) => {
-    Gallery.hasMany(models.Photo, {
-      onDelete: "cascade",
-    });
+    Gallery.hasMany(models.Photo);
   };
 
   return Gallery;
