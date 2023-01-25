@@ -1,32 +1,15 @@
 import "dotenv/config";
 
-import path from "path";
-
 import express from "express";
 import logger from "morgan";
 import createError from "http-errors";
 
-import { pageRouter, adminRouter } from "./routes";
+import { pageRouter, adminRouter, galleryRouter } from "./routes";
 
-import { Sequelize } from "sequelize";
-import initDb from "./models";
-console.log("init db");
-const db = initDb(
-  new Sequelize(
-    "sqlite:" +
-      (process.env.SQLITE_DB ? path.resolve(process.env.SQLITE_DB) : ":memory:")
-  )
-);
-console.log("sequelize sync");
+import db from "./models";
 db.sequelize.sync();
 
-import basicAuth from "express-basic-auth";
-const adminAuth = process.env.PHOTO_ADMIN
-  ? basicAuth({
-      users: { admin: process.env.PHOTO_ADMIN },
-      challenge: true,
-    })
-  : false;
+import adminAuth from "./auth";
 
 const app = express();
 
@@ -44,6 +27,7 @@ console.log("set view engine");
 app.set("view engine", "pug");
 
 app.use("/", pageRouter);
+app.use("/gallery", galleryRouter);
 if (adminAuth) app.use("/admin", adminAuth, adminRouter);
 
 // catch 404 and forward to error handler
@@ -63,4 +47,3 @@ app.use(function (err, req, res, next) {
 });
 
 export default app;
-export { db, adminAuth };
