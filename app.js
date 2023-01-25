@@ -1,29 +1,52 @@
 import "dotenv/config";
 
+import path from "path";
+
 import express from "express";
 import logger from "morgan";
-
-import config from "./config.js";
-import basicAuth from "express-basic-auth";
-
-import db from "./models";
-import routes from "./routes";
-
 import createError from "http-errors";
+
+import { pageRouter, adminRouter } from "./routes";
+
+import { Sequelize } from "sequelize";
+import initDb from "./models";
+console.log("init db");
+const db = initDb(
+  new Sequelize(
+    "sqlite:" +
+      (process.env.SQLITE_DB
+        ? path.resolve(__dirname, process.env.SQLITE_DB)
+        : ":memory:")
+  )
+);
+console.log("sequelize sync");
+db.sequelize.sync();
+
+import basicAuth from "express-basic-auth";
+const adminAuth = process.env.PHOTO_ADMIN
+  ? basicAuth({
+      users: { admin: process.env.PHOTO_ADMIN },
+      challenge: true,
+    })
+  : false;
 
 const app = express();
 
+console.log("use logger");
 app.use(logger("dev"));
 
+console.log("use static");
 app.use(express.static("public"));
 
+console.log("use body parsing");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+console.log("set view engine");
 app.set("view engine", "pug");
 
-app.use("/", routes.index);
-if (config.auth) app.use("/admin", basicAuth(config.auth), routes.admin);
+app.use("/", pageRouter);
+if (adminAuth) app.use("/admin", adminAuth, adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -41,6 +64,5 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-db.sequelize.sync();
-
 export default app;
+export { db, adminAuth };
