@@ -14,9 +14,7 @@ console.log("init db");
 const db = initDb(
   new Sequelize(
     "sqlite:" +
-      (process.env.SQLITE_DB
-        ? path.resolve(__dirname, process.env.SQLITE_DB)
-        : ":memory:")
+      (process.env.SQLITE_DB ? path.resolve(process.env.SQLITE_DB) : ":memory:")
   )
 );
 console.log("sequelize sync");
