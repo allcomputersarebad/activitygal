@@ -1,7 +1,19 @@
+//- mixin item(title, url)
+//-   li
+//-     a(href=url, class=active == title ? 'active' : '')= title
+
 doctype html
 html
+  block scripts
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
     block content
+      .pageTop
+  body
+    
+  //- - active = 'Contact'
+
+  //- ul#menu
+  //-   +item('Home', '/')
+  //-   +item('Contact', '/contact')
+  //-   +item('About', '/about')
