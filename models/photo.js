@@ -1,7 +1,21 @@
+import SequelizeSlugify from "sequelize-slugify";
+
 export default (db, DataTypes) => {
   const Photo = db.define("Photo", {
+    title: { type: DataTypes.STRING },
     caption: { type: DataTypes.TEXT },
-    title: { type: DataTypes.TEXT },
+    description: { type: DataTypes.TEXT },
+    altText: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `${this.description || this.caption || this.title}`;
+      },
+    },
+    imageData: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    slug: { type: DataTypes.STRING, unique: true },
   });
 
   Photo.associate = (models) => {
@@ -12,6 +26,11 @@ export default (db, DataTypes) => {
       foreignKey: { allowNull: true },
     });
   };
+
+  SequelizeSlugify.slugifyModel(Photo, {
+    source: ["id", "title"],
+    suffixSource: ["gallery"],
+  });
 
   return Photo;
 };

@@ -34,4 +34,11 @@ const initDb = (sequelize) => {
   return db;
 };
 
-export default initDb;
+const db = initDb(
+  new Sequelize(
+    "sqlite:" +
+      (process.env.SQLITE_DB ? path.resolve(process.env.SQLITE_DB) : ":memory:")
+  )
+);
+
+export default db;
