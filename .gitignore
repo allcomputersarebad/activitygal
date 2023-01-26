@@ -118,4 +118,6 @@ mock_data
 .DS_Store
 
 # user uploads
-uploads
+/uploads
+/upload
+/gallery

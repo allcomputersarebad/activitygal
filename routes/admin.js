@@ -3,8 +3,11 @@ import db from "../models";
 import multer from "multer";
 
 import fs from "fs/promises";
+import path from "path";
 
-const upload = multer();
+const fsRoot = process.env.PERSISTENT_STORAGE;
+const uploadDir = path.join(fsRoot, "upload");
+const upload = multer({ dest: uploadDir });
 const adminRouter = express.Router();
 
 adminRouter.get("/", async function (req, res, next) {
@@ -12,26 +15,32 @@ adminRouter.get("/", async function (req, res, next) {
   const galleryQuery = await db.Gallery.findAll({
     attributes: ["slug", "name"],
   });
-  const galleryData = galleryQuery.map((g) => g.dataValues);
-  console.log("data galleries", galleryData);
   res.render("admin", {
     title: "Admin " + req.auth.user,
-    galleries: galleryData,
+    galleries: galleryQuery.map((g) => g.dataValues),
   });
 });
 
-adminRouter.post(
-  "/upload",
-  upload.array("photos"),
-  async function (req, res, next) {
-    console.log("upload for gallery", targetGallery);
-    const gallerySlug = req.body.gallery;
-    const targetGallery = await db.Gallery.findOne({
-      where: { slug: gallerySlug },
+adminRouter.post("/upload", upload.array("photos"), function (req, res, next) {
+  const photoUploads = req.files;
+  const gallerySlug = req.body.gallery;
+  const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
+  db.Gallery.findOne({
+    where: { slug: gallerySlug },
+  }).then((targetGallery) => {
+    fs.mkdir(galleryPath, { recursive: true }).then(() => {
+      photoUploads.forEach((photo) => {
+        const newPath = path.join(galleryPath, photo.originalname);
+        fs.rename(photo.path, newPath).then(() =>
+          db.Photo.create({
+            gallery: targetGallery,
+            path: path.relative(fsRoot, newPath),
+          })
+        );
+      });
     });
-    //const renamed = await fs.rename(
-    //db.Photo.create({gallery: targetGallery})
-  }
-);
+  });
+  res.redirect("/");
+});
 
 export default adminRouter;

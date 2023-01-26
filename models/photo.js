@@ -11,7 +11,7 @@ export default (db, DataTypes) => {
         return `${this.description || this.caption || this.title}`;
       },
     },
-    imageData: {
+    path: {
       type: DataTypes.STRING,
       allowNull: false,
     },
