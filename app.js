@@ -4,7 +4,7 @@ import express from "express";
 import logger from "morgan";
 import createError from "http-errors";
 
-import { pageRouter, adminRouter, galleryRouter } from "./routes";
+import { pageRouter, adminRouter, galleryRouter, aboutRouter } from "./routes";
 
 import db from "./models";
 db.sequelize.sync();
@@ -30,6 +30,7 @@ app.set("view engine", "pug");
 app.use("/", pageRouter);
 app.use("/gallery", galleryRouter);
 if (adminAuth) app.use("/admin", adminAuth, adminRouter);
+app.use("/about", aboutRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,11 +1,9 @@
-extends layout
+extends index
 
 mixin gallery-option({slug, name})
   option(value=slug)=name
 
 block content
-  h1= title
-  p Welcome to #{title}
   form(action="/admin/upload", method="post", enctype="multipart/form-data")
     input(type="file", multiple="multiple", accept="image/*", name="photos", required="required")
     input(name="gallery", list="gallery-datalist")
