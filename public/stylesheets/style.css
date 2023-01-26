@@ -6,3 +6,13 @@ body {
 a {
   color: #00b7ff;
 }
+
+main#page-container {
+  width: 80%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+main#page-container h1 {
+  text-align: center;
+}
