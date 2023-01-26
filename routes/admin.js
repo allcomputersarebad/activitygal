@@ -1,18 +1,37 @@
 import express from "express";
+import db from "../models";
 import multer from "multer";
 
-const upload = multer({ dest: "uploads/" });
+import fs from "fs/promises";
+
+const upload = multer();
 const adminRouter = express.Router();
 
-adminRouter.get("/", function (req, res, next) {
+adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
-  res.render("admin", { title: "Admin " + req.auth.user, auth: req.auth });
+  const galleryQuery = await db.Gallery.findAll({
+    attributes: ["slug", "name"],
+  });
+  const galleryData = galleryQuery.map((g) => g.dataValues);
+  console.log("data galleries", galleryData);
+  res.render("admin", {
+    title: "Admin " + req.auth.user,
+    galleries: galleryData,
+  });
 });
 
-adminRouter.post("/upload", upload.single("photo"), function (req, res, next) {
-  console.log("recieving upload");
-  console.log("file", req.file);
-  res.redirect("/" + req.file.path);
-});
+adminRouter.post(
+  "/upload",
+  upload.array("photos"),
+  async function (req, res, next) {
+    console.log("upload for gallery", targetGallery);
+    const gallerySlug = req.body.gallery;
+    const targetGallery = await db.Gallery.findOne({
+      where: { slug: gallerySlug },
+    });
+    //const renamed = await fs.rename(
+    //db.Photo.create({gallery: targetGallery})
+  }
+);
 
 export default adminRouter;

@@ -1,9 +1,16 @@
 extends layout
 
+mixin gallery-option({slug, name})
+  option(value=slug)=name
+
 block content
   h1= title
   p Welcome to #{title}
   form(action="/admin/upload", method="post", enctype="multipart/form-data")
-    input(type="file", name="photo")
+    input(type="file", multiple="multiple", accept="image/*", name="photos", required="required")
+    input(name="gallery", list="gallery-datalist")
+    datalist(id="gallery-datalist")
+      each g in galleries
+        +gallery-option(g)
     input(type="submit")
 
