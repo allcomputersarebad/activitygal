@@ -18,6 +18,7 @@ app.use(logger("dev"));
 
 console.log("use static");
 app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
 console.log("use body parsing");
 app.use(express.json());
