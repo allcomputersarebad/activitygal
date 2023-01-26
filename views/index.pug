@@ -1,29 +1,27 @@
 extends layout
 
-block content
-  .pageTop
-    head
-      meta(charset='UTF-8')
-      meta(http-equiv='X-UA-Compatible' content='IE=edge')
-      meta(name='viewport' content='width=device-width, initial-scale=1.0')
-      title Testing Page Bottom 
-      link(rel='stylesheet', href='/stylesheets/style.css')
-    body
-      nav(hx-boost='true' hx-target='#page-container' hx-swap='outerHTML')
-        |
-        |
-        a(href='/') Home
-        |
-        |
-        a(href='/about.pug' hx-trigger="click") About
-        |
-        |
-        a(href='/contact') Contact
-        |
-        |
-        a(href='/galleries') Galleries
-  //- h1= title
-  //- p Welcome to #{title}
+block head
+  meta(charset='UTF-8')
+  meta(http-equiv='X-UA-Compatible' content='IE=edge')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  link(rel='stylesheet', href='/stylesheets/style.css')
+
+block navBar
+  nav
+    |
+    |
+    a(href='/') Home
+    |
+    |
+    a(href='/about') About
+    |
+    |
+    a(href='/contact') Contact
+    |
+    |
+    a(href='/galleries') Galleries
+  h1= title
+  p Welcome to #{title}
 
 block scripts
   script(src='https://unpkg.com/htmx.org@1.8.5' integrity='sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w' crossorigin='anonymous' async) 
