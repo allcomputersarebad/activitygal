@@ -1,19 +1,12 @@
-//- mixin item(title, url)
-//-   li
-//-     a(href=url, class=active == title ? 'active' : '')= title
-
 doctype html
 html
-  block scripts
   head
+    block head
+    block scripts
     title= title
-    block content
-      .pageTop
   body
-    
-  //- - active = 'Contact'
+    block navBar
+    div(class='page-container')
+      block content
 
-  //- ul#menu
-  //-   +item('Home', '/')
-  //-   +item('Contact', '/contact')
-  //-   +item('About', '/about')
+  footer
