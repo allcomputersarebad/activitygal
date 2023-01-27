@@ -4,10 +4,14 @@ mixin gallery-option({slug, name})
   option(value=slug)=name
 
 block content
-  form(action="/admin/upload", method="post", enctype="multipart/form-data")
-    input(type="file", multiple="multiple", accept="image/*", name="photos", required="required")
-    input(name="gallery", list="gallery-datalist")
-    datalist(id="gallery-datalist")
+  h2 Create Gallery 
+  form(action="/admin/gallery", method="post", enctype="application/json")
+    input(name="name", type="text", requiried="required")
+    input(type="submit")
+  h2 Photo Upload
+  form(action="/admin/photo", method="post", enctype="multipart/form-data")
+    input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
+    select(name="gallery")
       each g in galleries
         +gallery-option(g)
     input(type="submit")

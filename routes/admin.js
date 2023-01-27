@@ -1,39 +1,43 @@
 import express from "express";
 import db from "../models";
-import multer from "multer";
+import uploadParser from "../upload";
 
 import fs from "fs/promises";
 import path from "path";
 
 const fsRoot = process.env.PERSISTENT_STORAGE;
-const uploadDir = path.join(fsRoot, "upload");
-const upload = multer({ dest: uploadDir });
+
 const adminRouter = express.Router();
 
-adminRouter.get("/", async function (req, res, next) {
+adminRouter.get("/", (req, res) => {
   console.log("admin root", req.auth);
-  const galleryQuery = await db.Gallery.findAll({
+  db.Gallery.findAll({
     attributes: ["slug", "name"],
-  });
-  res.render("admin", {
-    title: "Admin " + req.auth.user,
-    galleries: galleryQuery.map((g) => g.dataValues),
-  });
+  }).then((allGalleries) =>
+    res.render("admin", {
+      title: "Admin " + req.auth.user,
+      // TODO: is this map necessary?
+      galleries: allGalleries.map((g) => g.dataValues),
+    })
+  );
 });
 
-adminRouter.post("/upload", upload.array("photos"), function (req, res, next) {
-  const photoUploads = req.files;
-  const gallerySlug = req.body.gallery;
-  const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
+/* TODO:
+ * prevent rename clobber
+ * multiple galleries per photo? here or elsewhere?
+ */
+adminRouter.post("/photo", uploadParser.array("photos"), (req, res) => {
+  const [photos, gallerySlug] = [req.files, req.body.gallery];
   db.Gallery.findOne({
     where: { slug: gallerySlug },
-  }).then((targetGallery) => {
+  }).then((toGallery) => {
+    const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
+    // mkdir recursive because directory may already exist
     fs.mkdir(galleryPath, { recursive: true }).then(() => {
-      photoUploads.forEach((photo) => {
+      photos.forEach((photo) => {
         const newPath = path.join(galleryPath, photo.originalname);
         fs.rename(photo.path, newPath).then(() =>
-          db.Photo.create({
-            gallery: targetGallery,
+          toGallery.createPhoto({
             path: path.relative(fsRoot, newPath),
           })
         );
@@ -42,5 +46,15 @@ adminRouter.post("/upload", upload.array("photos"), function (req, res, next) {
   });
   res.redirect("/");
 });
+
+// TODO: paginate
+adminRouter.get("/gallery", (req, res) => {
+  db.Gallery.findAll().then((allGalleries) => res.json(allGalleries));
+});
+
+// TODO: sanitize req.body
+adminRouter.post("/gallery", express.json(), express.urlencoded(), (req, res) =>
+  db.Gallery.create(req.body).then((newGallery) => res.json(newGallery))
+);
 
 export default adminRouter;

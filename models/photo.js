@@ -19,12 +19,8 @@ export default (db, DataTypes) => {
   });
 
   Photo.associate = (models) => {
-    Photo.belongsTo(models.Gallery, {
-      foreignKey: { allowNull: true },
-    });
-    Photo.belongsTo(models.Page, {
-      foreignKey: { allowNull: true },
-    });
+    Photo.belongsToMany(models.Gallery, { through: "GalleryPhotos" });
+    Photo.belongsToMany(models.Page, { through: "PagePhotos" });
   };
 
   SequelizeSlugify.slugifyModel(Photo, {

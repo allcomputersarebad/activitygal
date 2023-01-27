@@ -13,24 +13,17 @@ import adminAuth from "./auth";
 
 const app = express();
 
-console.log("use logger");
 app.use(logger("dev"));
 
-console.log("use static");
-app.use(express.static("public"));
-app.use("/uploads", express.static("uploads"));
+app.use("/", express.static("public"));
 
-console.log("use body parsing");
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-console.log("set view engine");
 app.set("view engine", "pug");
 
 app.use("/", pageRouter);
 app.use("/gallery", galleryRouter);
-if (adminAuth) app.use("/admin", adminAuth, adminRouter);
 app.use("/about", aboutRouter);
+
+if (adminAuth) app.use("/admin", adminAuth, adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

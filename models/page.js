@@ -10,8 +10,8 @@ export default (db, DataTypes) => {
   });
 
   Page.associate = (models) => {
-    Page.hasMany(models.Gallery);
-    Page.hasMany(models.Photo);
+    Page.belongsToMany(models.Photo, { through: "PagePhotos" });
+    Page.belongsToMany(models.Gallery, { through: "PageGalleries" });
   };
 
   SequelizeSlugify.slugifyModel(Page, {
