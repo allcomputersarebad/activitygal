@@ -2,6 +2,7 @@ import SequelizeSlugify from "sequelize-slugify";
 
 export default (db, DataTypes) => {
   const Photo = db.define("Photo", {
+    uuid: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
     title: { type: DataTypes.STRING },
     caption: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },
@@ -24,8 +25,7 @@ export default (db, DataTypes) => {
   };
 
   SequelizeSlugify.slugifyModel(Photo, {
-    source: ["id", "title"],
-    suffixSource: ["gallery"],
+    source: ["uuid", "title"],
   });
 
   return Photo;
