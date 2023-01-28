@@ -26,26 +26,36 @@ adminRouter.get("/", (req, res) => {
  * prevent rename clobber
  * multiple galleries per photo? here or elsewhere?
  */
-adminRouter.post("/photo", uploadParser.array("photos"), (req, res) => {
-  const [photos, gallerySlug] = [req.files, req.body.gallery];
-  db.Gallery.findOne({
-    where: { slug: gallerySlug },
-  }).then((toGallery) => {
-    const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
-    // mkdir recursive because directory may already exist
-    fs.mkdir(galleryPath, { recursive: true }).then(() => {
-      photos.forEach((photo) => {
-        const newPath = path.join(galleryPath, photo.originalname);
-        fs.rename(photo.path, newPath).then(() =>
-          toGallery.createPhoto({
-            path: path.relative(fsRoot, newPath),
-          })
-        );
+adminRouter.post(
+  "/photo",
+  express.json(),
+  uploadParser.array("photos"),
+  (req, res) => {
+    const [photos, gallerySlug] = [req.files, req.body.gallery];
+    db.Gallery.findOne({
+      where: { slug: gallerySlug },
+    }).then((toGallery) => {
+      const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
+      // mkdir recursive because directory may already exist
+      fs.mkdir(galleryPath, { recursive: true }).then(() => {
+        photos.forEach((photo) => {
+          const newPath = path.join(galleryPath, photo.originalname);
+          fs.rename(photo.path, newPath).then(() =>
+            toGallery.createPhoto({
+              path: path.relative(fsRoot, newPath),
+            })
+          );
+        });
       });
+      if (req.accepts("html")) {
+        res.redirect(path.join("/gallery/", toGallery.slug));
+      } else if (req.accepts("json")) {
+        res.json(toGallery);
+      }
     });
-  });
-  res.redirect("/");
-});
+    //res.redirect("/admin");
+  }
+);
 
 // TODO: paginate
 adminRouter.get("/gallery", (req, res) => {
