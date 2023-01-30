@@ -6,7 +6,14 @@ import express from "express";
 import logger from "morgan";
 import createError from "http-errors";
 
-import { pageRouter, adminRouter, galleryRouter, aboutRouter } from "./routes";
+import {
+  pageRouter,
+  adminRouter,
+  galleryRouter,
+  aboutRouter,
+  contactRouter,
+  galleriesRouter,
+} from "./routes";
 
 import db from "./models";
 db.sequelize.sync();
@@ -26,6 +33,8 @@ app.set("view engine", "pug");
 app.use("/", pageRouter);
 app.use("/gallery", galleryRouter);
 app.use("/about", aboutRouter);
+app.use("/contact", contactRouter);
+app.use("/galleries", galleriesRouter);
 
 if (adminAuth) app.use("/admin", adminAuth, adminRouter);
 

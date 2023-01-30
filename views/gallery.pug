@@ -4,5 +4,6 @@ mixin photo({path})
   img(src=path)
 
 block content
+  h1 this shows a single gallery
   each item in photos
     +photo(item)

@@ -1,0 +1,27 @@
+extends index
+
+//- mixin gallery(galleryData)
+//-   .gallery
+//-     .name= galleryData.name
+
+block content
+  p Please select a gallery you'd like to view
+
+  - const exampleData = [{"id":1,"name":"this is a test gallery","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"this-is-a-test-gallery"}, {"id":2,"name":"test gallery 2","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"test-gallery-2"}, {"id":3,"name":"final test gallery","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"final-test-gallery"}]
+
+
+  nav
+    each g in exampleData
+      - var name = g.name
+      - const slash = "/"
+      - var url = slash.concat(g.slug)
+
+      a(href=url) 
+        = name
+      |
+      |
+      |
+      |
+      |
+      |
+      //- need to figure out how to add more whitespace because this isn't working
