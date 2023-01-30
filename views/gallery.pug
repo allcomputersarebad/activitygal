@@ -1,7 +1,9 @@
 extends index
 
+mixin photo({path})
+  img(src=path)
+
 block content
   h1 this shows a single gallery
-  ul 
-    each photo in gallery
-      li= photo
+  each item in photos
+    +photo(item)

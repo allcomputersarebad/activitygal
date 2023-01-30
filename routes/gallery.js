@@ -14,6 +14,7 @@ galleryRouter.param("slug", async function (req, res, next, slugParam) {
       include: db.Photo,
     })
   )?.dataValues;
+  req.gallery.Photos = req.gallery?.Photos?.map((p) => p?.dataValues);
   next();
 });
 
@@ -28,15 +29,17 @@ galleryRouter.param("photo", async function (req, res, next, photoSlug) {
 });
 
 galleryRouter.get("/:slug", function (req, res, next) {
+  console.log("rendering gallery", req.gallery);
   if (!req.gallery || req.gallery?.hidden) {
     // res.sendStatus(404);
     res.status(404);
     next();
   } else {
     if (req.accepts("html")) {
-      res.render("index", {
+      res.render("gallery", {
         title: "Gallery " + req.gallery.name,
         gallery: req.gallery,
+        photos: req.gallery?.Photos,
       });
     } else if (req.accepts("json")) {
       // TODO: restrict outgoing fields

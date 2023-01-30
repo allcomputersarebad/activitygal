@@ -1,5 +1,7 @@
 import "dotenv/config";
 
+import auth from "./config/auth";
+
 import express from "express";
 import logger from "morgan";
 import createError from "http-errors";
@@ -16,13 +18,15 @@ import {
 import db from "./models";
 db.sequelize.sync();
 
-import adminAuth from "./auth";
+import basicAuth from "express-basic-auth";
+const adminAuth = auth ? basicAuth(auth) : false;
 
 const app = express();
 
 app.use(logger("dev"));
 
 app.use("/", express.static("public"));
+app.use("/mock_data", express.static("mock_data"));
 
 app.set("view engine", "pug");
 
