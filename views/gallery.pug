@@ -1,5 +1,8 @@
 extends index
 
+mixin photo({path})
+  img(src=path)
+
 block content
-  h1 this is a gallery
-  p you'd see a gallery here if we'd finished this template
+  each item in photos
+    +photo(item)
