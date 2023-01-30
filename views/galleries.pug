@@ -1,5 +1,27 @@
 extends index
 
+//- mixin gallery(galleryData)
+//-   .gallery
+//-     .name= galleryData.name
+
 block content
-  h1 this shows all galleries 
-  p you'd see a gallery here if we'd finished this template
+  p Please select a gallery you'd like to view
+
+  - const exampleData = [{"id":1,"name":"gay for Yet","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"gay-for-yet"}, {"id":2,"name":"really gay for them","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"really-gay-for-them"}, {"id":3,"name":"like the most gay","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"like-the-most-gay"}]
+
+
+  nav
+    each g in exampleData
+      - var name = g.name
+      - const slash = "/"
+      - var url = slash.concat(g.slug)
+
+      a(href=url) 
+        = name
+      |
+      |
+      |
+      |
+      |
+      |
+      //- need to figure out how to add more whitespace because this isn't working
