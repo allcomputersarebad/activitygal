@@ -1,4 +1,21 @@
 extend index 
 
 block content 
-    p Hi there! Contact me here.
+  p Hi there! Contact me here.
+  //- update where this form data is going
+  form(action="example.htm" method="post")
+    | Name: 
+    label(for="name")
+    input(type="text" id="name" name="name" required="required")
+    br
+    | Email:    
+    label(form="email")
+    input(type="text" id="email" name="email" required="required")
+    br
+    | Message:    
+    label(form="message")
+    input(type="text" id="message" name="message" required="required")
+    br
+    input(type="submit")
+
+    // i don't love how the text boxes don't line up but that's a problem for later
