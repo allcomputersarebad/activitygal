@@ -10,6 +10,7 @@ import {
   pageRouter,
   adminRouter,
   galleryRouter,
+  photoRouter,
   aboutRouter,
   contactRouter,
   galleriesRouter,
@@ -27,11 +28,13 @@ app.use(logger("dev"));
 
 app.use("/", express.static("public"));
 app.use("/mock_data", express.static("mock_data"));
+app.use("/photo", express.static("photo"));
 
 app.set("view engine", "pug");
 
 app.use("/", pageRouter);
 app.use("/gallery", galleryRouter);
+app.use("/photo", photoRouter);
 app.use("/about", aboutRouter);
 app.use("/contact", contactRouter);
 app.use("/galleries", galleriesRouter);

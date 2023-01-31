@@ -1,5 +1,7 @@
 extends index
 
 block content
-  h1 This is a photo
-  p You would see a photo here if we'd finished this template
+  h1=photo.title
+  p=photo.description
+  img(src=photo.path, alt=photo.altText)
+  p=photo.caption
