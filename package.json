@@ -24,11 +24,8 @@
     "@babel/core": "^7.20.12",
     "@babel/node": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
-    "nodemon": "^2.0.20"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
+    "@babel/register": "^7.18.9",
+    "nodemon": "^2.0.20",
+    "sequelize-cli": "^6.6.0"
   }
 }
