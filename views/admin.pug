@@ -5,13 +5,16 @@ mixin gallery-option({slug, name})
 
 block content
   h2 Create Gallery 
-  form(action="/admin/gallery", method="post", enctype="application/json")
-    input(name="name", type="text", requiried="required")
+  form(action="/admin/gallery" method="post" enctype="application/json")
+    label(for="name")
+    input(name="name" id="name" type="text" requiried="required")
     input(type="submit")
   h2 Photo Upload
-  form(action="/admin/photo", method="post", enctype="multipart/form-data")
-    input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
-    select(name="gallery")
+  form(action="/admin/photo" method="post" enctype="multipart/form-data")
+    label(for="photos")
+    input(name="photos" id="photos" type="file" multiple="multiple" accept="image/*" required="required")
+    label(for="gallery")
+    select(name="gallery" id="gallery")
       each g in galleries
         +gallery-option(g)
     input(type="submit")
