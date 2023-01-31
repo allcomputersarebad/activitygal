@@ -7,7 +7,7 @@ block content
   h2 Create Gallery 
   form(action="/admin/gallery" method="post" enctype="application/json")
     label(for="name")
-    input(name="name" id="name" type="text" requiried="required")
+    input(name="name" id="name" type="text" required="required")
     input(type="submit")
   h2 Photo Upload
   form(action="/admin/photo" method="post" enctype="multipart/form-data")
