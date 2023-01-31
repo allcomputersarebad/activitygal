@@ -121,5 +121,6 @@ mock_data
 /uploads
 /upload
 /gallery
+/photo
 
 .vscode

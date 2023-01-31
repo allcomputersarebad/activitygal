@@ -9,50 +9,51 @@ const fsRoot = process.env.PERSISTENT_STORAGE;
 
 const adminRouter = express.Router();
 
-adminRouter.get("/", (req, res) => {
+adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
-  db.Gallery.findAll({
-    attributes: ["slug", "name"],
-  }).then((allGalleries) =>
-    res.render("admin", {
-      title: "Admin " + req.auth.user,
-      // TODO: is this map necessary?
-      galleries: allGalleries.map((g) => g.dataValues),
-    })
-  );
+  const allGalleries = await db.Gallery.findAll({
+    attributes: ["uuid", "slug"],
+  });
+  const allPages = await db.Page.findAll({ attributes: ["uuid", "slug"] });
+  const pageData = {
+    title: "auth: " + req.auth.user,
+    // TODO: is this map necessary?
+    galleries: allGalleries.map((g) => g.dataValues),
+    pages: allPages.map((p) => p.dataValues),
+  };
+  res.render("admin", pageData);
 });
 
-/* TODO:
- * prevent rename clobber
- * multiple galleries per photo? here or elsewhere?
- */
+// TODO: multiple galleries/containers per photo? here or elsewhere?
 adminRouter.post(
   "/photo",
   express.json(),
   uploadParser.array("photos"),
-  (req, res) => {
-    const [photos, gallerySlug] = [req.files, req.body.gallery];
-    db.Gallery.findOne({
-      where: { slug: gallerySlug },
-    }).then((toGallery) => {
-      const galleryPath = path.join(fsRoot, "gallery", gallerySlug);
-      // mkdir recursive because directory may already exist
-      fs.mkdir(galleryPath, { recursive: true }).then(() => {
-        photos.forEach((photo) => {
-          const newPath = path.join(galleryPath, photo.originalname);
-          fs.rename(photo.path, newPath).then(() =>
-            toGallery.createPhoto({
-              path: path.relative(fsRoot, newPath),
-            })
-          );
-        });
-      });
-      if (req.accepts("html")) {
-        res.redirect(path.join("/gallery/", toGallery.slug));
-      } else if (req.accepts("json")) {
-        res.json(toGallery);
-      }
+  async function (req, res, next) {
+    const [photos, targetUuid] = [req.files, req.body.target];
+    const toTarget =
+      (await db.Gallery.findOne({
+        where: { uuid: targetUuid },
+      })) ||
+      (await db.Page.findOne({
+        where: { uuid: targetUuid },
+      }));
+    photos.forEach((photo) => {
+      const newPath = path.join(fsRoot, "photo", photo.filename);
+      fs.rename(photo.path, newPath).then(() =>
+        toTarget.createPhoto({
+          type: photo.mimetype,
+          resource: photo.filename,
+          originalname: photo.originalname,
+        })
+      );
     });
+    if (req.accepts("html")) {
+      res.redirect(toTarget.path);
+    } else if (req.accepts("json")) {
+      res.json(toTarget);
+    }
+    //next();
     //res.redirect("/admin");
   }
 );
@@ -61,10 +62,50 @@ adminRouter.post(
 adminRouter.get("/gallery", (req, res) => {
   db.Gallery.findAll().then((allGalleries) => res.json(allGalleries));
 });
+adminRouter.get("/page", (req, res) => {
+  db.Page.findAll().then((allPages) => res.json(allPages));
+});
+adminRouter.get("/photo", (req, res) => {
+  db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
+});
 
 // TODO: sanitize req.body
-adminRouter.post("/gallery", express.json(), express.urlencoded(), (req, res) =>
-  db.Gallery.create(req.body).then((newGallery) => res.json(newGallery))
+adminRouter.post(
+  "/gallery",
+  express.json(),
+  express.urlencoded(),
+  async function (req, res, next) {
+    if (req.body?.gallery) {
+      const galleryToUpdate = await db.Gallery.findOne({
+        where: { uuid: req.body.gallery },
+      });
+      const galleryUpdated = await galleryToUpdate.update({
+        title: req.body.title,
+      });
+      res.json(galleryUpdated);
+    } else {
+      const galleryCreated = await db.Gallery.create({ title: req.body.title });
+      res.json(galleryCreated);
+    }
+  }
+);
+
+adminRouter.post(
+  "/page",
+  express.json(),
+  express.urlencoded(),
+  async function (req, res, next) {
+    if (req.body?.page) {
+      const pageToUpdate = await db.Page.findOne({
+        where: { uuid: req.body.page },
+      });
+      const pageUpdated = await pageToUpdate.update({ title: req.body.title });
+      res.json(pageUpdated);
+    } else {
+      const pageCreated = await db.Page.create({ title: req.body.title });
+      res.json(pageCreated);
+    }
+  }
 );
 
 export default adminRouter;

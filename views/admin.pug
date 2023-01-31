@@ -1,18 +1,47 @@
-extends index
+extends layout
 
-mixin gallery-option({slug, name})
-  option(value=slug)=name
+block head
+  link(rel='stylesheet', href='/stylesheets/style.css')
+
+block scripts
+  script(src='https://unpkg.com/htmx.org@1.8.5' integrity='sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w' crossorigin='anonymous' async) 
+
+mixin iter-options(listy)
+  each thing in listy
+    +uuid-slug-option(thing)
+
+mixin uuid-slug-option({uuid, slug})
+    option(value=uuid)=slug
 
 block content
-  h2 Create Gallery 
+  h1=title
+  h2 Create/Edit Gallery 
   form(action="/admin/gallery", method="post", enctype="application/json")
-    input(name="name", type="text", requiried="required")
+    select(name="gallery")
+      option(value="" selected) -- New Gallery --
+      +iter-options(galleries)
+    label(for="title") Title
+    input(name="title", type="text")
+    label(for="description") Description
+    input(name="description", type="text")
+    input(type="submit")
+  h2 Create/Edit Page
+  form(action="/admin/page", method="post", enctype="application/json")
+    select(name="page")
+      option(value="" selected) -- New Page --
+      +iter-options(pages)
+    label(for="title") Title
+    input(name="title", type="text")
     input(type="submit")
   h2 Photo Upload
   form(action="/admin/photo", method="post", enctype="multipart/form-data")
+    label(for="target") Location
+    select(name="target")
+      option(value="" selected) -- No Target --
+      optgroup(label="Galleries" )
+        +iter-options(galleries)
+      optgroup(label="Pages")
+        +iter-options(pages)
+    label(for="photos") Photo(s)
     input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
-    select(name="gallery")
-      each g in galleries
-        +gallery-option(g)
     input(type="submit")
-

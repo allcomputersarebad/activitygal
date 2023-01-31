@@ -2,12 +2,23 @@ import SequelizeSlugify from "sequelize-slugify";
 
 export default (db, DataTypes) => {
   const Gallery = db.define("Gallery", {
-    name: {
+    uuid: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, isUUID: 4 },
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
+      notEmpty: true,
     },
     description: {
       type: DataTypes.TEXT,
+    },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+    },
+    path: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `/gallery/${this.slug}`;
+      },
     },
     slug: {
       type: DataTypes.STRING,
@@ -21,7 +32,7 @@ export default (db, DataTypes) => {
   };
 
   SequelizeSlugify.slugifyModel(Gallery, {
-    source: ["name"],
+    source: ["title"],
   });
 
   return Gallery;

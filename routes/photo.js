@@ -4,17 +4,18 @@ import db from "../models";
 const photoRouter = express.Router();
 
 // TODO: restrict outgoing fields
-photoRouter.param("slug", async function (req, res, next, slugParam) {
-  console.log("photo param slug", slugParam);
+photoRouter.param("resource", async function (req, res, next, resourceParam) {
+  console.log("photo param resource", resourceParam);
   req.photo = (
     await db.Photo.findOne({
-      where: { slug: slugParam },
+      where: { resource: resourceParam },
     })
   )?.dataValues;
   next();
 });
 
-photoRouter.get("/:slug", function (req, res, next) {
+photoRouter.get("/:resource", function (req, res, next) {
+  console.log("rendering photo", req.photo);
   if (!req.photo || req.photo?.hidden) {
     // res.sendStatus(404);
     res.status(404);

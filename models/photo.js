@@ -2,7 +2,6 @@ import SequelizeSlugify from "sequelize-slugify";
 
 export default (db, DataTypes) => {
   const Photo = db.define("Photo", {
-    uuid: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
     title: { type: DataTypes.STRING },
     caption: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },
@@ -12,21 +11,31 @@ export default (db, DataTypes) => {
         return `${this.description || this.caption || this.title}`;
       },
     },
-    path: {
+    resource: {
       type: DataTypes.STRING,
+      notEmpty: true,
       allowNull: false,
     },
-    slug: { type: DataTypes.STRING, unique: true },
+    path: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `/photo/${this.resource}`;
+      },
+    },
+    slug: {
+      type: DataTypes.STRING,
+      unique: true,
+    },
+  });
+
+  SequelizeSlugify.slugifyModel(Photo, {
+    source: ["title"],
   });
 
   Photo.associate = (models) => {
     Photo.belongsToMany(models.Gallery, { through: "GalleryPhotos" });
     Photo.belongsToMany(models.Page, { through: "PagePhotos" });
   };
-
-  SequelizeSlugify.slugifyModel(Photo, {
-    source: ["uuid", "title"],
-  });
 
   return Photo;
 };
