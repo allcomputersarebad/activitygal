@@ -5,7 +5,7 @@ extends index
 //-     .name= galleryData.name
 
 block content
-  p Please select a gallery you'd like to view
+  p Please select a gallery to view
 
   - const exampleData = [{"id":1,"name":"this is a test gallery","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"this-is-a-test-gallery"}, {"id":2,"name":"test gallery 2","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"test-gallery-2"}, {"id":3,"name":"final test gallery","updatedAt":"2023-01-30T19:33:13.600Z","createdAt":"2023-01-30T19:33:13.600Z","slug":"final-test-gallery"}]
 
@@ -18,10 +18,5 @@ block content
 
       a(href=url) 
         = name
-      |
-      |
-      |
-      |
-      |
-      |
+      br
       //- need to figure out how to add more whitespace because this isn't working
