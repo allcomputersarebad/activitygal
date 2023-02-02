@@ -22,7 +22,7 @@ pageRouter.get("/", function (req, res, next) {
 
 pageRouter.get("/:slug", function (req, res, next) {
   if (req.page) {
-    res.render("index", { title: req.page.name });
+    res.render("index", { title: req.page.title });
   } else {
     res.status(404);
     next();
