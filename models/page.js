@@ -11,7 +11,7 @@ export default (db, DataTypes) => {
     path: {
       type: DataTypes.VIRTUAL,
       get() {
-        return `/${this.title}`;
+        return `/${this.slug}`;
       },
     },
     slug: { type: DataTypes.STRING, unique: true },
