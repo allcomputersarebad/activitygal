@@ -46,7 +46,7 @@ const mockPages = [
     description: "A page demonstration",
   },
   {
-    title: "Page 2",
+    title: "Page Two",
     description: "Another page demonstration",
   },
   {
@@ -205,9 +205,7 @@ describe("photo creation", () => {
       .attach("photos", mockPhotoRefs.red[0]);
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testGalleries[0].path);
-    const redir = await request(baseURL)
-      .get(response.header.location)
-      .auth(auth.user, auth.pass);
+    const redir = await request(baseURL).get(response.header.location);
     expect(redir.status).toBe(200);
     expect(redir.text).toContain(testGalleries[0].title);
   });
@@ -219,9 +217,7 @@ describe("photo creation", () => {
       .attach("photos", ...mockPhotoRefs.blue);
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testGalleries[1].path);
-    const redir = await request(baseURL)
-      .get(response.header.location)
-      .auth(auth.user, auth.pass);
+    const redir = await request(baseURL).get(response.header.location);
     expect(redir.status).toBe(200);
     // TODO: check multiple images
     expect(redir.text).toContain(testGalleries[1].title);
@@ -234,9 +230,7 @@ describe("photo creation", () => {
       .attach("photos", mockPhotoRefs.green[0]);
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testPages[0].path);
-    const redir = await request(baseURL)
-      .get(response.header.location)
-      .auth(auth.user, auth.pass);
+    const redir = await request(baseURL).get(response.header.location);
     expect(redir.status).toBe(200);
     expect(redir.text).toContain(testPages[0].title);
   });
@@ -248,9 +242,7 @@ describe("photo creation", () => {
       .attach("photos", ...mockPhotoRefs.blue);
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testPages[1].path);
-    const redir = await request(baseURL)
-      .get(response.header.location)
-      .auth(auth.user, auth.pass);
+    const redir = await request(baseURL).get(response.header.location);
     expect(redir.status).toBe(200);
     expect(redir.text).toContain(testPages[1].title);
   });
