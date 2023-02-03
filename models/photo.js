@@ -35,6 +35,7 @@ export default (db, DataTypes) => {
   Photo.associate = (models) => {
     Photo.belongsToMany(models.Gallery, { through: "GalleryPhotos" });
     Photo.belongsToMany(models.Page, { through: "PagePhotos" });
+    Photo.hasOne(models.APAttachment, { foreignKey: "photoId" });
   };
 
   return Photo;

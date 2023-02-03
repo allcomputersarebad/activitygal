@@ -20,6 +20,7 @@ export default (db, DataTypes) => {
   Page.associate = (models) => {
     Page.belongsToMany(models.Photo, { through: "PagePhotos" });
     Page.belongsToMany(models.Gallery, { through: "PageGalleries" });
+    Page.hasOne(models.APActor, { foreignKey: "pageId" });
   };
 
   SequelizeSlugify.slugifyModel(Page, {

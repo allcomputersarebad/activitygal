@@ -29,6 +29,7 @@ export default (db, DataTypes) => {
   Gallery.associate = (models) => {
     Gallery.belongsToMany(models.Photo, { through: "GalleryPhotos" });
     Gallery.belongsToMany(models.Page, { through: "PageGalleries" });
+    Gallery.hasOne(models.APNote, { foreignKey: "galleryId" });
   };
 
   SequelizeSlugify.slugifyModel(Gallery, {
