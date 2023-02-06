@@ -1,7 +1,8 @@
 extends layout
 
 block head
-  link(rel='stylesheet', href='/stylesheets/style.css')
+  link(href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet")
+  link(href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet")
 
 block scripts
   script(src='https://unpkg.com/htmx.org@1.8.5' integrity='sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w' crossorigin='anonymous' async) 
@@ -15,40 +16,49 @@ mixin uuid-slug-option({uuid, slug})
 
 block content
   h1=title
-  h2 Create/Edit Gallery 
-  form(action="/admin/gallery", method="post", enctype="application/json")
-    select(name="gallery")
-      option(value="" selected) -- New Gallery --
-      +iter-options(galleries)
+  br
+  div(class="nes-container is-centered")
+    div(class="nes-container with-title is-centered")
+      h2(class="title") Create/Edit Gallery 
+      form(action="/admin/gallery", method="post", enctype="application/json")
+        select(name="gallery")
+          option(value="" selected) -- New Gallery --
+          +iter-options(galleries)
+        br
+        label(for="title") Title: 
+        input(name="title", type="text")
+        br
+        label(for="description") Description: 
+        input(name="description", type="text")
+        br
+        input(class="nes-btn" type="submit")
     br
-    label(for="title") Title: 
-    input(name="title", type="text")
     br
-    label(for="description") Description: 
-    input(name="description", type="text")
+    div(class="nes-container with-title is-centered")
+      h2(class="title") Create/Edit Page
+      form(action="/admin/page", method="post", enctype="application/json")
+        select(name="page")
+          option(value="" selected) -- New Page --
+          +iter-options(pages)
+        br
+        label(for="title") Title: 
+        input(name="title", type="text")
+        br
+        input(class="nes-btn" type="submit")
     br
-    input(type="submit")
-  h2 Create/Edit Page
-  form(action="/admin/page", method="post", enctype="application/json")
-    select(name="page")
-      option(value="" selected) -- New Page --
-      +iter-options(pages)
     br
-    label(for="title") Title: 
-    input(name="title", type="text")
-    br
-    input(type="submit")
-  h2 Photo Upload
-  form(action="/admin/photo", method="post", enctype="multipart/form-data")
-    label(for="target") Location 
-    select(name="target")
-      option(value="" selected) -- No Target --
-      optgroup(label="Galleries" )
-        +iter-options(galleries)
-      optgroup(label="Pages")
-        +iter-options(pages)
-    br
-    label(for="photos") Photo(s) 
-    input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
-    br
-    input(type="submit")
+    div(class="nes-container with-title is-centered")
+      h2(class="title") Photo Upload
+      form(action="/admin/photo", method="post", enctype="multipart/form-data")
+        label(for="target") Location: 
+        select(name="target")
+          option(value="" selected) -- No Target --
+          optgroup(label="Galleries" )
+            +iter-options(galleries)
+          optgroup(label="Pages")
+            +iter-options(pages)
+        br
+        label(for="photos") Photo(s):
+        input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
+        br
+        input(class="nes-btn" type="submit")
