@@ -12,9 +12,9 @@ const adminRouter = express.Router();
 adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
   const allGalleries = await db.Gallery.findAll({
-    attributes: ["uuid", "slug"],
+    attributes: ["id", "slug"],
   });
-  const allPages = await db.Page.findAll({ attributes: ["uuid", "slug"] });
+  const allPages = await db.Page.findAll({ attributes: ["id", "slug"] });
   const pageData = {
     title: "auth: " + req.auth.user,
     // TODO: is this map necessary?
@@ -30,13 +30,13 @@ adminRouter.post(
   express.json(),
   uploadParser.array("photos"),
   async function (req, res, next) {
-    const [photos, targetUuid] = [req.files, req.body.target];
+    const [photos, targetId] = [req.files, req.body.target];
     const toTarget =
       (await db.Gallery.findOne({
-        where: { uuid: targetUuid },
+        where: { id: targetId },
       })) ||
       (await db.Page.findOne({
-        where: { uuid: targetUuid },
+        where: { id: targetId },
       }));
     photos.forEach((photo) => {
       const newPath = path.join(fsRoot, "photo", photo.filename);
@@ -77,7 +77,7 @@ adminRouter.post(
   async function (req, res, next) {
     if (req.body?.gallery) {
       const galleryToUpdate = await db.Gallery.findOne({
-        where: { uuid: req.body.gallery },
+        where: { id: req.body.gallery },
       });
       const galleryUpdated = await galleryToUpdate.update({
         title: req.body.title,
@@ -97,7 +97,7 @@ adminRouter.post(
   async function (req, res, next) {
     if (req.body?.page) {
       const pageToUpdate = await db.Page.findOne({
-        where: { uuid: req.body.page },
+        where: { id: req.body.page },
       });
       const pageUpdated = await pageToUpdate.update({ title: req.body.title });
       res.json(pageUpdated);
