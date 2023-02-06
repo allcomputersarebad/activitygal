@@ -1,7 +1,6 @@
 import adminRouter from "./admin.js";
 import pageRouter from "./page.js";
 import galleryRouter from "./gallery.js";
-import photoRouter from "./photo.js";
 import aboutRouter from "./about.js";
 import contactRouter from "./contact.js";
 import galleriesRouter from "./galleries";
@@ -10,7 +9,6 @@ export {
   pageRouter,
   adminRouter,
   galleryRouter,
-  photoRouter,
   aboutRouter,
   contactRouter,
   galleriesRouter,
