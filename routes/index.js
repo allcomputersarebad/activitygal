@@ -4,7 +4,7 @@ import galleryRouter from "./gallery.js";
 import photoRouter from "./photo.js";
 import aboutRouter from "./about.js";
 import contactRouter from "./contact.js";
-import galleriesRouter from "./galleries";
+import galleriesRouter from "./galleries.js";
 
 export {
   pageRouter,

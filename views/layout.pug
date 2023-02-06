@@ -1,12 +1,12 @@
 doctype html
-html
+html(data-theme="fantasy")
   head
     block head
     block scripts
     title= title
   body
     block navBar
-    div(class='page-container')
+    div(data-theme="cupcake" class='page-container')
       block content
 
   footer

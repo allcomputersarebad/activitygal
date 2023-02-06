@@ -17,7 +17,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
 
 /* GET home page. */
 pageRouter.get("/", function (req, res, next) {
-  res.render("index", { title: "ActivityGal" });
+  res.render("welcome", { title: "ActivityGal" });
 });
 
 pageRouter.get("/:slug", function (req, res, next) {
