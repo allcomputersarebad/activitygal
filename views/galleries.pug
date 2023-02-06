@@ -10,4 +10,7 @@ block content
 
   nav
     each g in galleries
-      +gallery(g)
+      div()
+        +gallery(g)
+        g.description
+      br
