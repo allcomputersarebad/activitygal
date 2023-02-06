@@ -15,15 +15,15 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   next();
 });
 
+/* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
-  req.page = await db.Page.findOne({
+  page = await db.Page.findOne({
     where: { slug: "index" },
     include: [db.Photo, db.Gallery],
   });
-  res.render("index", {
-    title: req.page?.name ?? "ActivityGal Index",
-    galleries: page?.Galleries,
-    photos: page?.Photos,
+  res.render("welcome", {
+    ...page,
+    title: page?.title ?? "ActivityGal",
   });
 });
 
