@@ -1,8 +1,16 @@
 import SequelizeSlugify from "sequelize-slugify";
 
+// TODO: ondelete: emit delete action
+
 export default (db, DataTypes) => {
   const Gallery = db.define("Gallery", {
-    uuid: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, isUUID: 4 },
+    paranoid: true,
+    id: {
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -11,24 +19,27 @@ export default (db, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
     },
-    hidden: {
-      type: DataTypes.BOOLEAN,
-    },
-    path: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return `/gallery/${this.slug}`;
-      },
-    },
     slug: {
       type: DataTypes.STRING,
       unique: true,
     },
   });
 
+  Gallery.noteJson = (base) => {
+    const galleryUrl = new URL("/gallery/" + this.slug, base);
+    const pageUrl = new URL(this.Page.slug, base);
+    return {
+      content: this.description, // this.gallery.title?
+      path: galleryUrl.href,
+      type: "note",
+      attributedTo: pageUrl.href,
+      attachment: this.Photos.map((p) => p.attachmentJson()),
+    };
+  };
+
   Gallery.associate = (models) => {
-    Gallery.belongsToMany(models.Photo, { through: "GalleryPhotos" });
-    Gallery.belongsToMany(models.Page, { through: "PageGalleries" });
+    Gallery.hasMany(models.Photo);
+    Gallery.belongsTo(models.Page);
   };
 
   SequelizeSlugify.slugifyModel(Gallery, {
