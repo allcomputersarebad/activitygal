@@ -1,19 +1,13 @@
 extends index
 
-//- mixin gallery(galleryData)
-//-   .gallery
-//-     .name= galleryData.name
+mixin gallery(g)
+  .gallery
+    a(href='/gallery/' + g.slug)
+      = g.title
 
 block content
   p Please select a gallery to view
 
   nav
     each g in galleries
-      - var name = g.title
-      - const slash = "/gallery/"
-      - var url = slash.concat(g.slug)
-
-      a(href=url) 
-        = name
-      br
-      //- need to figure out how to add more whitespace because this isn't working
+      +gallery(g)
