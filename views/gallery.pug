@@ -3,6 +3,9 @@ extends index
 mixin photo({path})
   img(src=path)
 
+block head 
+  link(href="../stylesheets/style.css", rel="stylesheet")
+
 block content
   h1 this shows a single gallery
   each item in photos
