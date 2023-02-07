@@ -9,7 +9,7 @@ export default (db, DataTypes) => {
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
+      isUUID: 4,
     },
     title: {
       type: DataTypes.STRING,
@@ -23,13 +23,19 @@ export default (db, DataTypes) => {
       type: DataTypes.STRING,
       unique: true,
     },
+    path: {
+      type: DataTypes.VIRTUAL(DataTypes.STRING, ["slug"]),
+      get() {
+        return "/gallery/" + (this.slug ?? "fucked-up");
+      },
+    },
   });
 
   Gallery.noteJson = (base) => {
-    const galleryUrl = new URL("/gallery/" + this.slug, base);
-    const pageUrl = new URL(this.Page.slug, base);
+    const galleryUrl = new URL(this.path, base);
+    const pageUrl = new URL(this.Page.path, base);
     return {
-      content: this.description, // this.gallery.title?
+      content: this.description, // this.gallery.title? pug template?
       path: galleryUrl.href,
       type: "note",
       attributedTo: pageUrl.href,
