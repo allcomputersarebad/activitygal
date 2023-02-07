@@ -1,7 +1,7 @@
 extends index
 
 mixin gallery(g)
-  .gallery
+  .card-title
     a(href='/gallery/' + g.slug)
       = g.title
 
@@ -10,7 +10,10 @@ block content
 
   nav
     each g in galleries
-      div()
-        +gallery(g)
+      div(class="card card-compact w-96 bg-base-100 shadow-xl")
+        div(class="card-body")
+          h2
+            +gallery(g)
+          div(class="cards-actions justify-end")
         g.description
       br
