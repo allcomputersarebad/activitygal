@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../models";
 import { URL } from "url";
+import { Actor, webfinger } from "../activity";
 
 const baseUrl = new URL(process.env.PROTOCOL + process.env.DOMAIN);
 const activityRouter = express.Router();
@@ -12,12 +13,13 @@ const activityRouter = express.Router();
 activityRouter.get("/.well-known/webfinger", async (req, res, next) => {
   console.log("webfinger", req.query.resource);
   const [acct, usr, dom] = req.query.resource.match(/acct:(.*)@(.*)/);
+  let page;
   if (
     acct &&
     dom === baseUrl.hostname && // TODO: correct domain check
     (page = await db.Page.findOne({ where: { slug: usr } }))
   ) {
-    res.json(page.webfingerJson(baseUrl));
+    res.json(webfinger(new Actor(page)));
   } else {
     res.status(404);
     next();
