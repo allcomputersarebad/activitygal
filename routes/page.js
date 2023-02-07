@@ -9,7 +9,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   console.log("page param slug", slugParam);
   req.page = await db.Page.findOne({
     where: { slug: slugParam },
-    include: [db.Photo, db.Gallery],
+    //include: [db.Photo, db.Gallery], // TODO: this properly
   });
   console.log("got page", req.page);
   next();
@@ -29,16 +29,15 @@ pageRouter.get("/", async function (req, res, next) {
 
 pageRouter.get("/:slug", function (req, res, next) {
   if (req.page) {
-    if (req.accepts("json"))
-      res.redirect(path.join("/", req.page.slug + ".json"));
+    if (req.accepts("json")) res.redirect(req.page.path + ".json");
     else
       res.render("index", {
-        title: req.page?.name,
-        galleries: page?.Galleries,
-        photos: page?.Photos,
+        title: req.page.title,
+        //galleries: page?.Galleries,
+        //photos: page?.Photos,
       });
   } else {
-    res.status(404);
+    //res.status(404); // TODO: wtf
     next();
   }
 });

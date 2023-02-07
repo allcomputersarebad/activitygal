@@ -15,6 +15,12 @@ export default (db, DataTypes) => {
       allowNull: false,
       notEmpty: true,
     },
+    path: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return "/" + this.slug;
+      },
+    },
     slug: { type: DataTypes.STRING, unique: true },
   });
 
@@ -24,9 +30,9 @@ export default (db, DataTypes) => {
   };
 
   Page.actorJson = (base) => {
-    const pageUrl = new URL(this.slug, base);
-    const jsonUrl = new URL(this.slug + ".json", base);
-    const outboxUrl = new URL(this.slug + "/outbox.json", base);
+    const pageUrl = new URL(this.path, base);
+    const jsonUrl = new URL(this.path + ".json", base);
+    const outboxUrl = new URL(this.path + "/outbox.json", base);
     return {
       "@context": [
         "https://www.w3.org/ns/activitystreams",
