@@ -31,7 +31,7 @@ export default (db, DataTypes) => {
     },
   });
 
-  Gallery.noteJson = (base) => {
+  Gallery.prototype.noteJson = (base) => {
     const galleryUrl = new URL(this.path, base);
     const pageUrl = new URL(this.Page.path, base);
     return {

@@ -29,7 +29,7 @@ export default (db, DataTypes) => {
     },
   });
 
-  Photo.attachmentJson = (base) => {
+  Photo.prototype.attachmentJson = (base) => {
     const photoUrl = new URL(this.path, base);
     return {
       type: "Document",

@@ -29,7 +29,7 @@ export default (db, DataTypes) => {
     Page.belongsToMany(models.RemoteUser, { through: "PageFollowers" });
   };
 
-  Page.actorJson = (base) => {
+  Page.prototype.actorJson = function (base) {
     const pageUrl = new URL(this.path, base);
     const jsonUrl = new URL(this.path + ".json", base);
     const outboxUrl = new URL(this.path + "/outbox.json", base);
@@ -56,10 +56,10 @@ export default (db, DataTypes) => {
     };
   };
 
-  Page.webfingerJson = (base) => {
+  Page.prototype.webfingerJson = (base) => {
     const pageUrl = new URL(this.slug, base);
     const activityUrl = new URL(this.slug + ".json", base);
-    const subscribeUrl = new URL("/authorize_interaction?uri={uri}", base);
+    //const subscribeUrl = new URL("/authorize_interaction?uri={uri}", base);
     return {
       subject: `acct:${this.slug}@${base.domain}`,
       aliases: [pageUrl.href],
@@ -74,10 +74,7 @@ export default (db, DataTypes) => {
           type: "application/activity+json",
           href: activityUrl.href,
         },
-        {
-          rel: "http://ostatus.org/schema/1.0/subscribe",
-          template: subscribeUrl.href,
-        },
+        //{ rel: "http://ostatus.org/schema/1.0/subscribe", template: subscribeUrl.href, },
       ],
     };
   };
