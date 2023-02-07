@@ -8,10 +8,10 @@ extends index
 
 mixin iter-options(listy)
   each thing in listy
-    +uuid-slug-option(thing)
+    +id-slug-option(thing)
 
-mixin uuid-slug-option({uuid, slug})
-    option(value=uuid)=slug
+mixin id-slug-option({id, slug})
+    option(value=id)=slug
 
 block content
   h1=title

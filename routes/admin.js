@@ -12,9 +12,9 @@ const adminRouter = express.Router();
 adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
   const allGalleries = await db.Gallery.findAll({
-    attributes: ["uuid", "slug"],
+    attributes: ["id", "slug"],
   });
-  const allPages = await db.Page.findAll({ attributes: ["uuid", "slug"] });
+  const allPages = await db.Page.findAll({ attributes: ["id", "slug"] });
   const pageData = {
     title: "auth: " + req.auth.user,
     // TODO: is this map necessary?
@@ -27,16 +27,15 @@ adminRouter.get("/", async function (req, res, next) {
 // TODO: multiple galleries/containers per photo? here or elsewhere?
 adminRouter.post(
   "/photo",
-  express.json(),
   uploadParser.array("photos"),
   async function (req, res, next) {
-    const [photos, targetUuid] = [req.files, req.body.target];
+    const [photos, targetId] = [req.files, req.body.target];
     const toTarget =
       (await db.Gallery.findOne({
-        where: { uuid: targetUuid },
+        where: { id: targetId },
       })) ||
       (await db.Page.findOne({
-        where: { uuid: targetUuid },
+        where: { id: targetId },
       }));
     photos.forEach((photo) => {
       const newPath = path.join(fsRoot, "photo", photo.filename);
@@ -69,22 +68,24 @@ adminRouter.get("/photo", (req, res) => {
   db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
 });
 
-// TODO: sanitize req.body
 adminRouter.post(
   "/gallery",
-  express.json(),
   express.urlencoded(),
   async function (req, res, next) {
-    if (req.body?.gallery) {
+    console.log("gallery post");
+    const galleryId = req.body?.gallery;
+    const galleryForm = {
+      title: req.body?.title,
+      description: req.body?.description,
+    };
+    if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
-        where: { uuid: req.body.gallery },
+        where: { id: galleryId },
       });
-      const galleryUpdated = await galleryToUpdate.update({
-        title: req.body.title,
-      });
+      const galleryUpdated = await galleryToUpdate.update(galleryForm);
       res.json(galleryUpdated);
     } else {
-      const galleryCreated = await db.Gallery.create({ title: req.body.title });
+      const galleryCreated = await db.Gallery.create(galleryForm);
       res.json(galleryCreated);
     }
   }
@@ -92,17 +93,23 @@ adminRouter.post(
 
 adminRouter.post(
   "/page",
-  express.json(),
   express.urlencoded(),
   async function (req, res, next) {
-    if (req.body?.page) {
+    console.log("page post");
+    const pageId = req.body?.page;
+    //const pageForm = (({ title, description }) => ({ title, description }))(req.body);
+    const pageForm = {
+      title: req.body?.title,
+      description: req.body?.description,
+    };
+    if (pageId) {
       const pageToUpdate = await db.Page.findOne({
-        where: { uuid: req.body.page },
+        where: { id: pageId },
       });
-      const pageUpdated = await pageToUpdate.update({ title: req.body.title });
+      const pageUpdated = await pageToUpdate.update(pageForm);
       res.json(pageUpdated);
     } else {
-      const pageCreated = await db.Page.create({ title: req.body.title });
+      const pageCreated = await db.Page.create(pageForm);
       res.json(pageCreated);
     }
   }
