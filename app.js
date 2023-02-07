@@ -13,6 +13,7 @@ import {
   aboutRouter,
   contactRouter,
   galleriesRouter,
+  activityRouter,
 } from "./routes";
 
 import db from "./models";
@@ -30,6 +31,7 @@ app.use("/", express.static("public"));
 app.set("view engine", "pug");
 
 app.use("/", pageRouter);
+app.use("/", activityRouter);
 app.use("/gallery", galleryRouter);
 app.use("/photo", express.static("photo"));
 app.use("/about", aboutRouter);

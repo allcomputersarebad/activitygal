@@ -4,6 +4,7 @@ import galleryRouter from "./gallery.js";
 import aboutRouter from "./about.js";
 import contactRouter from "./contact.js";
 import galleriesRouter from "./galleries.js";
+import activityRouter from "./activity.js";
 
 export {
   pageRouter,
@@ -12,4 +13,5 @@ export {
   aboutRouter,
   contactRouter,
   galleriesRouter,
+  activityRouter,
 };
