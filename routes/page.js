@@ -9,7 +9,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   console.log("page param slug", slugParam);
   req.page = await db.Page.findOne({
     where: { slug: slugParam },
-    //include: [db.Photo, db.Gallery], // TODO: this properly
+    include: [db.Gallery], // TODO: this properly
   });
   console.log("got page", req.page);
   next();
@@ -45,20 +45,6 @@ pageRouter.get("/:slug", function (req, res, next) {
 pageRouter.get("/:slug.json", function (req, res, next) {
   res.contentType("application/activity+json");
   res.json(req.page.actorJson(baseUrl));
-});
-
-// https://domain/.well-known/webfinger?resource=acct:user@example.com
-pageRouter.get("/.well-known/webfinger", async (req, res, next) => {
-  const [usr, dom] = req.query.resource.match(/acct:(.*)@(.*)/); // TODO: sanitize
-  if (
-    dom === baseUrl.domain && // TODO: correct domain check
-    (page = await db.Page.findOne({ where: { slug: usr } }))
-  ) {
-    res.json(page.webfingerJson(baseUrl));
-  } else {
-    res.status(404);
-    next();
-  }
 });
 
 export default pageRouter;
