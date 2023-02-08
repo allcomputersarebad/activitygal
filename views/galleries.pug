@@ -4,9 +4,11 @@ mixin gallery(g)
   .card-title
     a(href='/gallery/' + g.slug)
       = g.title
+      .card-body
+        p= g.description
 
 block content
-  p Please select a gallery to view
+  h1 Please select a gallery to view
 
   nav
     each g in galleries

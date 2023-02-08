@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../models";
 import uploadParser from "../upload";
+import { renderFile } from "pug";
 
 import fs from "fs/promises";
 import path from "path";
@@ -12,7 +13,7 @@ const adminRouter = express.Router();
 adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
   const allGalleries = await db.Gallery.findAll({
-    attributes: ["id", "slug"],
+    attributes: ["id", "slug", "title"],
   });
   const allPages = await db.Page.findAll({ attributes: ["id", "slug"] });
   const pageData = {
@@ -66,6 +67,23 @@ adminRouter.get("/page", (req, res) => {
 });
 adminRouter.get("/photo", (req, res) => {
   db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
+});
+
+// single gallery data
+adminRouter.get("/single", async function (req, res) {
+  console.log("entering single gallery route");
+  const singleGallery = await db.Gallery.findOne({
+    where: { slug: "patch-is-a-good-dog" },
+    attributes: ["id", "slug", "title", "description"],
+  });
+  console.log(singleGallery.dataValues.title);
+  console.log(singleGallery.dataValues.description);
+  res.send(
+    renderFile("views/adminGalleryForm.pug", {
+      inputTitle: singleGallery.dataValues.title,
+      inputDescription: singleGallery.dataValues.description,
+    })
+  );
 });
 
 adminRouter.post(
