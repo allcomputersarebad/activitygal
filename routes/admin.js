@@ -72,18 +72,28 @@ adminRouter.get("/photo", (req, res) => {
 // single gallery data
 adminRouter.get("/single", async function (req, res) {
   console.log("entering single gallery route");
-  const singleGallery = await db.Gallery.findOne({
-    where: { slug: "patch-is-a-good-dog" },
-    attributes: ["id", "slug", "title", "description"],
-  });
-  console.log(singleGallery.dataValues.title);
-  console.log(singleGallery.dataValues.description);
-  res.send(
-    renderFile("views/adminGalleryForm.pug", {
-      inputTitle: singleGallery.dataValues.title,
-      inputDescription: singleGallery.dataValues.description,
-    })
-  );
+  console.log(req.query);
+  if (req.query.galleryID === "-- New Gallery --") {
+    res.send(
+      renderFile("views/adminGalleryForm.pug", {
+        inputTitle: "",
+        inputDescription: "",
+      })
+    );
+  } else {
+    const singleGallery = await db.Gallery.findOne({
+      where: { id: req.query.galleryID },
+      attributes: ["id", "slug", "title", "description"],
+    });
+    console.log(singleGallery.dataValues.title);
+    console.log(singleGallery.dataValues.description);
+    res.send(
+      renderFile("views/adminGalleryForm.pug", {
+        inputTitle: singleGallery.dataValues.title,
+        inputDescription: singleGallery.dataValues.description,
+      })
+    );
+  }
 });
 
 adminRouter.post(
