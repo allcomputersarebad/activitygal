@@ -9,6 +9,7 @@ const db = require("./models").default;
 
 const auth = ["admin", process.env.PHOTO_ADMIN];
 
+const mockPageGalleryAssoc = [1, 3, 3, 4, 4];
 const mockGalleries = [
   {
     title: "Demo Gal",
@@ -35,6 +36,14 @@ const mockGalleries = [
     title: "Additional Demo",
     description: "Additional gallery demonstration",
   },
+  {
+    title: "Aweghghghewa",
+    description: "So extra",
+  },
+  {
+    title: "Still need more",
+    description: "And more description",
+  },
 ];
 
 const mockPages = [
@@ -43,17 +52,8 @@ const mockPages = [
     description: "A page demonstration",
   },
   {
-    title: "Page Two",
-    description: "Another page demonstration",
-  },
-  {
-    title: "More Page",
-    description: "Demonstrating more page",
-  },
-  {
-    title: "Hidden Page",
-    description: "Hidden page demonstration",
-    hidden: true,
+    title: "A Single Page",
+    description: "Page with a single gal",
   },
   {
     title: "Empty Page",
@@ -62,6 +62,11 @@ const mockPages = [
   {
     title: "Additional Page",
     description: "Additional page demonstration",
+  },
+  {
+    title: "Hidden Page",
+    description: "Hidden page demonstration",
+    hidden: true,
   },
 ];
 
@@ -96,27 +101,15 @@ const mockPhotos = [
 
 const mockPhotoRefs = Object.fromEntries(
   fs.readdirSync(mockPhotoPath).map((dir) => [
-    dir, // gallery name
-    fs // gallery photos
+    dir, // nested gallery dir name
+    fs // scan nested dir for gallery photos
       .readdirSync(path.resolve(mockPhotoPath, dir))
       .filter((file) => path.extname(file) === ".jpg")
       .map((leaf) => path.resolve(mockPhotoPath, dir, leaf)),
   ])
 );
 
-const createMockGalleries = async () => {
-  const testGalleries = Array();
-  for (let gal of mockGalleries) {
-    const galResult = await request(baseURL)
-      .post("/admin/gallery")
-      .auth(...auth)
-      .type("form")
-      .send(gal);
-    testGalleries.push(galResult?.body);
-  }
-  return testGalleries;
-};
-const createMockPages = async () => {
+const postMockPages = async () => {
   const testPages = Array();
   for (let pg of mockPages) {
     const pgResult = await request(baseURL)
@@ -129,7 +122,31 @@ const createMockPages = async () => {
   return testPages;
 };
 
-// TODO: test page rendering
+const postMockGalleries = async (testPages, pageAssoc) => {
+  pageAssoc = pageAssoc ?? mockPageGalleryAssoc;
+  const testGalleries = Array();
+  for (let [i, gal] of mockGalleries.entries()) {
+    const PageId = testPages[pageAssoc[i] ?? 0]?.id;
+    const sendGal = { ...gal, PageId };
+    const galResult = await request(baseURL)
+      .post("/admin/gallery")
+      .auth(...auth)
+      .type("form")
+      .send(sendGal);
+    testGalleries.push(galResult?.body);
+  }
+  return testGalleries;
+};
+
+const postMockPhotos = async (gallery, ...photos) => {
+  const photosUp = await request(baseURL)
+    .post("/admin/photo")
+    .type("form")
+    .auth(...auth)
+    .field("target", gallery)
+    .attach("photos", ...photos);
+  return photosUp;
+};
 
 let server;
 
@@ -143,14 +160,15 @@ afterAll(function (done) {
   server.close(done);
 });
 
-describe("create and get galleries and pages", () => {
-  it("can create several galleries", async () => {
-    const testGalleries = await createMockGalleries();
-    expect(testGalleries.length).toBe(mockGalleries.length);
-  });
+describe("create pages and galleries", () => {
   it("can create several pages", async () => {
-    const testPages = await createMockPages();
+    const testPages = await postMockPages();
     expect(testPages.length).toBe(mockPages.length);
+  });
+  it("can create several galleries associated with pages", async () => {
+    const testPages = await postMockPages();
+    const testGalleries = await postMockGalleries(testPages);
+    expect(testGalleries.length).toBe(mockGalleries.length);
   });
 });
 
@@ -158,9 +176,30 @@ describe("get routes", () => {
   let testGalleries;
   let testPages;
   beforeAll(async () => {
-    testGalleries = await createMockGalleries();
-    testPages = await createMockPages();
+    // TODO: env for all of this instead of using routes
+    testPages = await postMockPages();
+    testGalleries = await postMockGalleries(testPages);
+    /*
+    const photos = await createMockPhotos(
+      testGalleries[1]?.id,
+      ...mockPhotoRefs.blue
+    );
+    */
   });
+
+  describe("page gets", () => {
+    it("can get one page", async () => {
+      const response = await request(baseURL).get(testPages[0].path);
+      expect(response.status).toBe(200);
+    });
+    it("can get all pages with auth", async () => {
+      const response = await request(baseURL)
+        .get("/admin/page")
+        .auth(auth.user, auth.pass);
+      expect(Array.isArray(response.body));
+    });
+  });
+
   describe("gallery gets", () => {
     it("can get one gallery", async () => {
       const response = await request(baseURL).get(testGalleries[0].path);
@@ -174,10 +213,17 @@ describe("get routes", () => {
     });
   });
 
-  describe("page gets", () => {
-    it("can get one page", async () => {
-      const response = await request(baseURL).get(testPages[0].path);
+  describe("photo gets", () => {
+    /*
+    it("can get one photo", async () => {
       expect(response.status).toBe(200);
+    });
+    */
+    it("can get all photos with auth", async () => {
+      const response = await request(baseURL)
+        .get("/admin/photo")
+        .auth(auth.user, auth.pass);
+      expect(Array.isArray(response.body));
     });
   });
 });
@@ -186,17 +232,15 @@ describe("photo creation", () => {
   let testGalleries;
   let testPages;
   beforeAll(async () => {
-    testGalleries = await createMockGalleries();
-    testPages = await createMockPages();
+    testPages = await postMockPages();
+    testGalleries = await postMockGalleries(testPages);
   });
   // create galleries and pages
   it("can post a single photo to a gallery", async () => {
-    const response = await request(baseURL)
-      .post("/admin/photo")
-      .type("form")
-      .auth(...auth)
-      .field("target", testGalleries[0]?.id)
-      .attach("photos", mockPhotoRefs.red[0]);
+    const response = await postMockPhotos(
+      testGalleries[0]?.id,
+      mockPhotoRefs.red[0]
+    );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testGalleries[0].path);
     const redir = await request(baseURL).get(response.header.location);
@@ -204,12 +248,10 @@ describe("photo creation", () => {
     expect(redir.text).toContain(testGalleries[0].title);
   });
   it("can post multiple photos to a gallery", async () => {
-    const response = await request(baseURL)
-      .post("/admin/photo")
-      .type("form")
-      .auth(...auth)
-      .field("target", testGalleries[1]?.id)
-      .attach("photos", ...mockPhotoRefs.blue);
+    const response = await postMockPhotos(
+      testGalleries[1]?.id,
+      ...mockPhotoRefs.blue
+    );
     expect(response.status).toBe(302);
     expect(response.header.location).toBe(testGalleries[1].path);
     const redir = await request(baseURL).get(response.header.location);
