@@ -10,8 +10,9 @@ mixin iter-options(listy)
   each thing in listy
     +id-slug-option(thing)
 
-mixin id-slug-option({id, slug})
-    option(value=id)=slug
+mixin id-slug-option({id, slug, title})
+    label(for=title)
+    option(value=id)=title
 
 block content
   h1=title
@@ -19,22 +20,40 @@ block content
   div
     div(class="card card-compact w-96 bg-base-100 shadow-xl")
       div(class="card-body")
-        h2(class="title") Create/Edit Gallery 
-        form(action="/admin/gallery", method="post", enctype="application/json")
-          div(class="dropdown dropdown-hover")
-            label(tabindex="0" class="btn m-1") -- Select a Gallery --
-            ul(tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52")
-              select(name="gallery")
-                option(value="" selected) -- New Gallery --
-                +iter-options(galleries)
+        h2(class="card-title") Create/Edit Gallery 
+        form(action="/admin/gallery" method="post" enctype="application/json")
+          div(class="form-control w-full max-w-xs")
+            select(
+              class="select select-primary w-full max-w-xs" 
+              hx-get="/admin/single"
+              hx-target="#gallery-data"
+              hx-trigger="change"
+              hx-swap="innerHTML"
+            )
+              - var selection
+              option(value="-- New Gallery --" selected) -- New Gallery --
+              label(for="New Gallery")
+              +iter-options(galleries)
           br
-          label(class="input-group" for="title")
-            span(class="label-text") Title: 
-            input(name="title", type="text" class="input input-bordered")
-          br
-          label(class="input-group" for="description")
-            span(class="label-text") Description: 
-            input(name="description", type="text" class="input input-bordered")
+          div(id="gallery-data")
+            label(for="title")
+              span(class="label-text") Title: 
+              div(id="gallery-title")
+                input(
+                name="title" 
+                type="text" 
+                class="input input-bordered"
+              )
+            br
+            label(for="description")
+              span(class="label-text") Description:
+              div(id="gallery-description" hx-swap-oob="true")
+                input(
+                  id="gallery-description"
+                  name="description" 
+                  type="text" 
+                  class="input input-bordered"
+                )
           br
           input(class="btn btn-primary" type="submit")
     br
