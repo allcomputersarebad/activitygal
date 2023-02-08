@@ -3,8 +3,6 @@ extends index
 //- block head
 //-   link(href="./stylesheets/style.css", rel="stylesheet")
 
-//- block scripts
-//-   script(src='https://unpkg.com/htmx.org@1.8.5' integrity='sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w' crossorigin='anonymous' async) 
 
 mixin iter-options(listy)
   each thing in listy
@@ -24,11 +22,10 @@ block content
         form(action="/admin/gallery" method="post" enctype="application/json")
           div(class="form-control w-full max-w-xs")
             select(
+              name="galleryID"
               class="select select-primary w-full max-w-xs" 
               hx-get="/admin/single"
               hx-target="#gallery-data"
-              hx-trigger="change"
-              hx-swap="innerHTML"
             )
               - var selection
               option(value="-- New Gallery --" selected) -- New Gallery --
@@ -88,3 +85,6 @@ block content
           input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
           br
           input(class="btn btn-primary" type="submit")
+
+block append scripts
+  script(src="https://unpkg.com/htmx.org/dist/ext/json-enc.js" async) 
