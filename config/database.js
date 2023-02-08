@@ -1,18 +1,23 @@
 import "dotenv/config";
 import path from "path";
 
-const dialect = "sqlite";
-
-const storage = {
-  development: path.resolve(
-    process.env.PERSISTENT_STORAGE,
-    process.env.SQLITE_DB
-  ),
-  production: path.resolve(
-    process.env.PERSISTENT_STORAGE,
-    process.env.SQLITE_DB
-  ),
-  testing: ":memory:",
+const database = {
+  production: {
+    dialect: "postgres",
+    uri: process.env.DB_URI,
+  },
+  test: {
+    dialect: "sqlite",
+    storage: ":memory:",
+  },
+  development: {
+    dialect: "sqlite",
+    storage: path.resolve(
+      // undefined ?? "" to prevent err
+      process.env.PERSISTENT_STORAGE ?? "",
+      process.env.DB_FILE ?? "dev.sqlite"
+    ),
+  },
 }[process.env.NODE_ENV];
 
-export { dialect, storage };
+export default database;
