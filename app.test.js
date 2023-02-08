@@ -177,7 +177,7 @@ describe("get routes", () => {
   describe("page gets", () => {
     it("can get one page", async () => {
       const response = await request(baseURL).get(testPages[0].path);
-      expect(response.status).toBe(302); // json redir
+      expect(response.status).toBe(200);
     });
   });
 });
