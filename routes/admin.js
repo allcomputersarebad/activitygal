@@ -70,7 +70,7 @@ adminRouter.get("/photo", (req, res) => {
 
 adminRouter.post(
   "/gallery",
-  express.urlencoded(),
+  express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("gallery post");
     const galleryId = req.body?.gallery;
@@ -93,7 +93,7 @@ adminRouter.post(
 
 adminRouter.post(
   "/page",
-  express.urlencoded(),
+  express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("page post");
     const pageId = req.body?.page;
