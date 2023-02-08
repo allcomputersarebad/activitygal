@@ -26,7 +26,7 @@ export default (db, DataTypes) => {
     path: {
       type: DataTypes.VIRTUAL(DataTypes.STRING, ["slug"]),
       get() {
-        return "/gallery/" + (this.slug ?? "fucked-up");
+        return "/gallery/" + this.slug;
       },
     },
   });
