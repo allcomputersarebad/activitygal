@@ -29,18 +29,6 @@ export default (db, DataTypes) => {
     },
   });
 
-  Photo.attachmentJson = (base) => {
-    const photoUrl = new URL(this.path, base);
-    return {
-      type: "Document",
-      mediaType: this.mediaType, // like "image/png",
-      url: photoUrl.href,
-      name: this.altText,
-      //"focalPoint": [ 0.6, 1.0 ], // unnecessary
-      //width, height // necessary?
-    };
-  };
-
   Photo.associate = (models) => {
     Photo.belongsTo(models.Gallery);
   };

@@ -1,8 +1,8 @@
 import express from "express";
 import db from "../models";
-import { URL } from "url";
 
-const baseUrl = new URL(process.env.PROTOCOL + process.env.DOMAIN);
+import { Actor } from "../activity";
+
 const pageRouter = express.Router();
 
 pageRouter.param("slug", async function (req, res, next, slugParam) {
@@ -29,13 +29,11 @@ pageRouter.get("/", async function (req, res, next) {
 
 pageRouter.get("/:slug", function (req, res, next) {
   if (req.page) {
-    if (req.accepts("json")) res.redirect(req.page.path + ".json");
-    else
-      res.render("index", {
-        title: req.page.title,
-        //galleries: page?.Galleries,
-        //photos: page?.Photos,
-      });
+    res.render("index", {
+      title: req.page.title,
+      //galleries: page?.Galleries,
+      //photos: page?.Photos,
+    });
   } else {
     //res.status(404); // TODO: wtf
     next();
@@ -44,21 +42,14 @@ pageRouter.get("/:slug", function (req, res, next) {
 
 pageRouter.get("/:slug.json", function (req, res, next) {
   res.contentType("application/activity+json");
-  res.json(req.page.actorJson(baseUrl));
+  const pageActor = new Actor(req.page);
+  res.json(pageActor);
 });
 
-// https://domain/.well-known/webfinger?resource=acct:user@example.com
-pageRouter.get("/.well-known/webfinger", async (req, res, next) => {
-  const [usr, dom] = req.query.resource.match(/acct:(.*)@(.*)/); // TODO: sanitize
-  if (
-    dom === baseUrl.domain && // TODO: correct domain check
-    (page = await db.Page.findOne({ where: { slug: usr } }))
-  ) {
-    res.json(page.webfingerJson(baseUrl));
-  } else {
-    res.status(404);
-    next();
-  }
+pageRouter.get("/:slug/outbox.json", function (req, res, next) {
+  res.contentType("application/activity+json");
+  const pageActor = new Actor(req.page);
+  res.json(pageActor.outbox());
 });
 
 export default pageRouter;
