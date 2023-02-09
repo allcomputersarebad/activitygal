@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../models";
 import uploadParser from "../upload";
+import { renderFile } from "pug";
 
 import fs from "fs/promises";
 import path from "path";
@@ -10,9 +11,9 @@ const adminRouter = express.Router();
 adminRouter.get("/", async function (req, res, next) {
   console.log("admin root", req.auth);
   const allGalleries = await db.Gallery.findAll({
-    attributes: ["id", "slug"],
+    attributes: ["id", "slug", "title"],
   });
-  const allPages = await db.Page.findAll({ attributes: ["id", "slug"] });
+  const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
   const pageData = {
     title: "auth: " + req.auth.user,
     // TODO: is this map necessary?
@@ -64,6 +65,57 @@ adminRouter.get("/photo", (req, res) => {
   db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
 });
 
+// single gallery data
+adminRouter.get("/single", async function (req, res) {
+  console.log("entering single gallery route");
+  console.log(req.query);
+  if (req.query.galleryId === "") {
+    res.send(
+      renderFile("views/adminGalleryForm.pug", {
+        galleryTitle: "",
+        galleryDescription: "",
+      })
+    );
+  } else {
+    const singleGallery = await db.Gallery.findOne({
+      where: { id: req.query.galleryId },
+      attributes: ["id", "title", "description"],
+    });
+    console.log(singleGallery.dataValues.title);
+    console.log(singleGallery.dataValues.description);
+    res.send(
+      renderFile("views/adminGalleryForm.pug", {
+        galleryTitle: singleGallery.dataValues.title,
+        galleryDescription: singleGallery.dataValues.description,
+      })
+    );
+  }
+});
+
+// single page data
+adminRouter.get("/singlepage", async function (req, res) {
+  console.log("entering single page route");
+  console.log(req.query);
+  if (req.query.pageId === "") {
+    res.send(
+      renderFile("views/adminPageForm.pug", {
+        pageTitle: "",
+      })
+    );
+  } else {
+    const singlePage = await db.Page.findOne({
+      where: { id: req.query.pageId },
+      attributes: ["id", "title"],
+    });
+    console.log(singlePage.dataValues.title);
+    res.send(
+      renderFile("views/adminPageForm.pug", {
+        pageTitle: singlePage.dataValues.title,
+      })
+    );
+  }
+});
+
 adminRouter.post(
   "/gallery",
   express.urlencoded({ extended: true /* shut up deprecated */ }),
@@ -93,7 +145,7 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("page post");
-    const pageId = req.body?.PageId;
+    const pageId = req.body?.pageId;
     const pageForm = {
       title: req.body?.title,
       description: req.body?.description,
