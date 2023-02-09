@@ -5,8 +5,6 @@ import uploadParser from "../upload";
 import fs from "fs/promises";
 import path from "path";
 
-const fsRoot = process.env.PERSISTENT_STORAGE ?? "/tmp";
-
 const adminRouter = express.Router();
 
 adminRouter.get("/", async function (req, res, next) {
@@ -38,7 +36,10 @@ adminRouter.post(
       await Promise.all(
         photos.map((photo) =>
           fs
-            .rename(photo.path, path.join(fsRoot, "photo", photo.filename))
+            .rename(
+              photo.path,
+              path.join(req.app.settings.photoStorage, photo.filename)
+            )
             .then(() =>
               toTarget.createPhoto({
                 type: photo.mimetype,

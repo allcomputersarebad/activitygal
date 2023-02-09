@@ -5,7 +5,9 @@ import database from "../config/database";
 
 const db = {};
 
-let sequelize = new Sequelize(database?.uri ?? database, database?.options);
+let sequelize = database?.uri
+  ? new Sequelize(database.uri, database?.options)
+  : new Sequelize(database);
 
 fs.readdirSync(__dirname)
   .filter(

@@ -14,17 +14,15 @@ const database = {
   },
   test: {
     dialect: "sqlite",
-    storage:
-      process.env.PERSISTENT_STORAGE && process.env.DB_TEST
-        ? path.resolve(process.env.PERSISTENT_STORAGE, process.env.DB_TEST)
-        : ":memory:",
+    storage: process.env.DB_TEST
+      ? path.resolve(process.env.DB_TEST)
+      : ":memory:",
   },
   development: {
     dialect: "sqlite",
-    storage:
-      process.env.PERSISTENT_STORAGE && process.env.DB_FILE
-        ? path.resolve(process.env.PERSISTENT_STORAGE, process.env.DB_FILE)
-        : undefined,
+    storage: process.env.DB_FILE
+      ? path.resolve(process.env.DB_FILE)
+      : undefined,
   },
 }[process.env.NODE_ENV];
 
