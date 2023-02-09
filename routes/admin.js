@@ -74,12 +74,7 @@ adminRouter.get("/single", async function (req, res) {
   console.log("entering single gallery route");
   console.log(req.query);
   if (req.query.galleryId === "") {
-    res.send(
-      renderFile("views/adminGalleryForm.pug", {
-        galleryTitle: "",
-        galleryDescription: "",
-      })
-    );
+    res.send(renderFile("views/adminGalleryForm.pug"));
   } else {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
@@ -89,7 +84,7 @@ adminRouter.get("/single", async function (req, res) {
     console.log(singleGallery.dataValues);
     console.log(singleGallery.dataValues.description);
     res.send(
-      renderFile("views/adminGalleryForm.pug", {
+      renderFile("views/adminGalleryFormWithPhotos.pug", {
         galleryTitle: singleGallery.dataValues.title,
         galleryDescription: singleGallery.dataValues.description,
         photos: singleGallery.dataValues.Photos,
