@@ -10,7 +10,11 @@ galleriesRouter.get("/", async function (req, res, next) {
   console.log(allGalleries.map((g) => g.dataValues));
   res.render("galleries", {
     title: "Galleries",
-    galleries: allGalleries.map((g) => g.dataValues),
+    galleries: allGalleries.map(({ title, description, slug }) => ({
+      title,
+      description,
+      slug,
+    })),
   });
 });
 
