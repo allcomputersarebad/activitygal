@@ -8,7 +8,7 @@ mixin iter-options(listy)
   each thing in listy
     +id-slug-option(thing)
 
-mixin id-slug-option({id, slug, title})
+mixin id-slug-option({id, title})
     label(for=title)
     option(value=id)=title
 
@@ -22,13 +22,12 @@ block content
         form(action="/admin/gallery" method="post" enctype="application/json")
           div(class="form-control w-full max-w-xs")
             select(
-              name="galleryID"
+              name="galleryId"
               class="select select-primary w-full max-w-xs" 
               hx-get="/admin/single"
               hx-target="#gallery-data"
             )
-              - var selection
-              option(value="-- New Gallery --" selected) -- New Gallery --
+              option(value="" selected) -- New Gallery --
               label(for="New Gallery")
               +iter-options(galleries)
           br
@@ -57,14 +56,27 @@ block content
     br
     div(class="card card-compact w-96 bg-base-100 shadow-xl")
       div(class="card-body")
-        h2(class="title") Create/Edit Page
+        h2(class="card-title") Create/Edit Page
         form(action="/admin/page", method="post", enctype="application/json")
-          select(name="page")
-            option(value="" selected) -- New Page --
-            +iter-options(pages)
-          br
-          label(for="title" class="input-group input-group-vertical") Title: 
-          input(name="title", type="text")
+          div(class="form-control w-full max-w-xs")
+            select(
+              name="pageId"
+              class="select select-primary w-full max-w-xs"
+              hx-get="/admin/singlepage"
+              hx-target="#page-data"
+              )
+              option(value="" selected) -- New Page --
+              +iter-options(pages)
+            br
+            div(id="page-data")
+              label(for="title")
+                span(class="label-text") Title:
+                div(id="page-title")
+                  input(
+                    name="title"
+                    type="text"
+                    class="input input-bordered"
+                  )
           br
           input(class="btn btn-primary" type="submit")
     br
