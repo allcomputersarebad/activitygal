@@ -1,3 +1,6 @@
+mixin photo({path, alt, title})
+  img(src=path alt=alt name=title class="rounded-box")
+
 div(id="gallery-data")
   label(for="title")
     span(class="label-text") Title: 
@@ -6,6 +9,7 @@ div(id="gallery-data")
         name='title' 
         type='text' 
         class='input input-bordered w-full' 
+        value= galleryTitle
       )
   br
   label(for="description")
@@ -15,5 +19,14 @@ div(id="gallery-data")
         name="description" 
         type="text" 
         class="input input-bordered w-full"
+        value= galleryDescription
       )
     br
+    section(class="mt-4 mx-auto w-10/12 relative")
+      div(class="grid grid-cols-3 justify-center gap-3")
+      if photos 
+      each item in photos
+        +photo(item)
+        br
+      else
+        p(class="alert alert-info-primary ") No photos at the moment!
