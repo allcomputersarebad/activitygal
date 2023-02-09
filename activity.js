@@ -1,6 +1,10 @@
 import { URL } from "url";
 
-const base = new URL(`${process.env.PROTOCOL}://${process.env.HOST}`);
+const base = new URL(
+  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
+    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  }`
+);
 
 function webfinger(actor) {
   return {

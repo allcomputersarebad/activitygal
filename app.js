@@ -4,8 +4,13 @@ import express from "express";
 import logger from "morgan";
 const app = express();
 
-app.set("publicRoot", `${process.env.PROTOCOL}://${process.env.HOST}`);
-app.set("publicHost", process.env.HOST);
+app.set(
+  "publicRoot",
+  `${process.env.EXTERNAL_PROTOCOL}://${
+    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  }`
+);
+app.set("publicHost", process.env.EXTERNAL_HOST ?? "localhost");
 
 app.set("view engine", "pug");
 app.use(logger("dev"));
