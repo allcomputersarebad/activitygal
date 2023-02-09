@@ -15,7 +15,7 @@ adminRouter.get("/", async function (req, res, next) {
   const allGalleries = await db.Gallery.findAll({
     attributes: ["id", "slug", "title"],
   });
-  const allPages = await db.Page.findAll({ attributes: ["id", "slug"] });
+  const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
   const pageData = {
     title: "auth: " + req.auth.user,
     // TODO: is this map necessary?
@@ -73,25 +73,48 @@ adminRouter.get("/photo", (req, res) => {
 adminRouter.get("/single", async function (req, res) {
   console.log("entering single gallery route");
   console.log(req.query);
-  console.log(req.body);
   if (req.query.galleryId === "") {
     res.send(
       renderFile("views/adminGalleryForm.pug", {
-        inputTitle: "",
-        inputDescription: "",
+        galleryTitle: "",
+        galleryDescription: "",
       })
     );
   } else {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
-      attributes: ["id", "slug", "title", "description"],
+      attributes: ["id", "title", "description"],
     });
     console.log(singleGallery.dataValues.title);
     console.log(singleGallery.dataValues.description);
     res.send(
       renderFile("views/adminGalleryForm.pug", {
-        inputTitle: singleGallery.dataValues.title,
-        inputDescription: singleGallery.dataValues.description,
+        galleryTitle: singleGallery.dataValues.title,
+        galleryDescription: singleGallery.dataValues.description,
+      })
+    );
+  }
+});
+
+// single page data
+adminRouter.get("/singlepage", async function (req, res) {
+  console.log("entering single page route");
+  console.log(req.query);
+  if (req.query.pageId === "") {
+    res.send(
+      renderFile("views/adminPageForm.pug", {
+        pageTitle: "",
+      })
+    );
+  } else {
+    const singlePage = await db.Page.findOne({
+      where: { id: req.query.pageId },
+      attributes: ["id", "title"],
+    });
+    console.log(singlePage.dataValues.title);
+    res.send(
+      renderFile("views/adminPageForm.pug", {
+        pageTitle: singlePage.dataValues.title,
       })
     );
   }
@@ -127,7 +150,7 @@ adminRouter.post(
   express.urlencoded(),
   async function (req, res, next) {
     console.log("page post");
-    const pageId = req.body?.page; // this might bug out later
+    const pageId = req.body?.pageId;
     //const pageForm = (({ title, description }) => ({ title, description }))(req.body);
     const pageForm = {
       title: req.body?.title,
