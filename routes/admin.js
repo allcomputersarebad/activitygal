@@ -84,13 +84,15 @@ adminRouter.get("/single", async function (req, res) {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
       attributes: ["id", "title", "description"],
+      include: db.Photo,
     });
-    console.log(singleGallery.dataValues.title);
+    console.log(singleGallery.dataValues);
     console.log(singleGallery.dataValues.description);
     res.send(
       renderFile("views/adminGalleryForm.pug", {
         galleryTitle: singleGallery.dataValues.title,
         galleryDescription: singleGallery.dataValues.description,
+        photos: singleGallery.dataValues.Photos,
       })
     );
   }
