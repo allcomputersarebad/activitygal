@@ -3,7 +3,7 @@ import path from "path";
 
 const database = {
   production: {
-    uri: process.env.DB_URI,
+    uri: process.env.DATABASE_URL,
     options: {
       dialect: "postgres",
       dialectOptions: {
