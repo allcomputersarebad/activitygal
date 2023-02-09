@@ -6,7 +6,7 @@ import { renderFile } from "pug";
 import fs from "fs/promises";
 import path from "path";
 
-const fsRoot = process.env.PERSISTENT_STORAGE;
+const fsRoot = process.env.PERSISTENT_STORAGE ?? "/tmp";
 
 const adminRouter = express.Router();
 
