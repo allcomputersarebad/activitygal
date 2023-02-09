@@ -9,7 +9,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   console.log("page param slug", slugParam);
   req.page = await db.Page.findOne({
     where: { slug: slugParam },
-    include: [db.Gallery], // TODO: this properly
+    include: [db.Gallery],
   });
   console.log("got page", req.page);
   next();
@@ -19,7 +19,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
 pageRouter.get("/", async function (req, res, next) {
   page = await db.Page.findOne({
     where: { slug: "index" },
-    include: [db.Photo, db.Gallery],
+    include: [db.Gallery],
   });
   res.render("welcome", {
     ...page,
