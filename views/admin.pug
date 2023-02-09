@@ -16,7 +16,7 @@ block content
   h1=title
   br
   div
-    div(class="card card-compact w-96 bg-base-100 shadow-xl")
+    div(class="card card-compact w-full bg-base-100 shadow-xl")
       div(class="card-body")
         h2(class="card-title") Create/Edit Gallery 
         form(action="/admin/gallery" method="post" enctype="application/json")
@@ -38,23 +38,23 @@ block content
                 input(
                 name="title" 
                 type="text" 
-                class="input input-bordered"
+                class="input input-bordered w-full"
               )
             br
             label(for="description")
               span(class="label-text") Description:
-              div(id="gallery-description" hx-swap-oob="true")
+              div(id="gallery-description")
                 input(
                   id="gallery-description"
                   name="description" 
                   type="text" 
-                  class="input input-bordered"
+                  class="input input-bordered w-full"
                 )
           br
           input(class="btn btn-primary" type="submit")
     br
     br
-    div(class="card card-compact w-96 bg-base-100 shadow-xl")
+    div(class="card card-compact w-full bg-base-100 shadow-xl")
       div(class="card-body")
         h2(class="card-title") Create/Edit Page
         form(action="/admin/page", method="post", enctype="application/json")
@@ -75,26 +75,39 @@ block content
                   input(
                     name="title"
                     type="text"
-                    class="input input-bordered"
+                    class="input input-bordered w-full"
                   )
           br
           input(class="btn btn-primary" type="submit")
     br
     br
-    div(class="card card-compact w-96 bg-base-100 shadow-xl")
+    div(class="card card-compact w-full bg-base-100 shadow-xl")
       div(class="card-body")
-        h2(class="title") Photo Upload
+        h2(class="card-title") Photo Upload
         form(action="/admin/photo", method="post", enctype="multipart/form-data")
-          label(for="target") Location: 
-          select(name="target")
-            option(value="" selected) -- No Target --
-            optgroup(label="Galleries" )
-              +iter-options(galleries)
-            optgroup(label="Pages")
-              +iter-options(pages)
+          div(class="form-control w-full max-w-xs")
+            label(for="target") Location: 
+            select(
+              name="target"
+              class="select select-primary w-full max-w-xs"
+            )
+              option(value="" selected) -- No Target --
+              optgroup(label="Galleries" )
+                +iter-options(galleries)
+              optgroup(label="Pages")
+                +iter-options(pages)
           br
-          label(for="photos") Photo(s):
-          input(name="photos", type="file", multiple="multiple", accept="image/*", required="required")
+          label(for="photos")
+            span(class="label-text") Photo(s):
+            div(id="photos")
+              input(
+                name="photos" 
+                type="file" 
+                class="file-input file-input-bordered file-input-primary w-full max-w-xs"
+                multiple="multiple" 
+                accept="image/*" 
+                required="required"
+              )
           br
           input(class="btn btn-primary" type="submit")
 
