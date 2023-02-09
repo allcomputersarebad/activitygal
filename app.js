@@ -1,5 +1,8 @@
 import "dotenv/config";
 
+import fs from "fs";
+import path from "path";
+
 import express from "express";
 import logger from "morgan";
 const app = express();
@@ -11,6 +14,11 @@ app.set(
   }`
 );
 app.set("publicHost", process.env.EXTERNAL_HOST ?? "localhost");
+app.set(
+  "photoStorage",
+  path.resolve(process.env?.PERSISTENT_STORAGE ?? __dirname, "photo")
+);
+fs.mkdirSync(app.get("photoStorage"), { recursive: true });
 
 app.set("view engine", "pug");
 app.use(logger("dev"));
@@ -27,7 +35,7 @@ import {
 app.use("/", pageRouter);
 app.use("/", activityRouter);
 app.use("/gallery", galleryRouter);
-app.use("/photo", express.static("photo"));
+app.use("/photo", express.static(app.get("photoStorage")));
 app.use("/about", aboutRouter);
 app.use("/contact", contactRouter);
 app.use("/galleries", galleriesRouter);
