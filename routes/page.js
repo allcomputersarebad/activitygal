@@ -17,12 +17,12 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
 
 /* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
-  page = await db.Page.findOne({
+  const page = await db.Page.findOne({
     where: { slug: "index" },
     include: [db.Gallery],
   });
   res.render("welcome", {
-    ...page,
+    ...(page ?? {}),
     title: page?.title ?? "ActivityGal",
   });
 });
@@ -32,7 +32,6 @@ pageRouter.get("/:slug", function (req, res, next) {
     res.render("index", {
       title: req.page.title,
       //galleries: page?.Galleries,
-      //photos: page?.Photos,
     });
   } else {
     //res.status(404); // TODO: wtf
