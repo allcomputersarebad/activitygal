@@ -1,8 +1,6 @@
 import { URL } from "url";
 
-const base = new URL(
-  `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`
-);
+const base = new URL(`${process.env.PROTOCOL}://${process.env.HOST}`);
 
 function webfinger(actor) {
   return {
