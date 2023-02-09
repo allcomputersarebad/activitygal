@@ -9,6 +9,11 @@
     "tailwind:css": "postcss public/stylesheets/tailwind.css -o public/stylesheets/style.css"
   },
   "dependencies": {
+    "@babel/cli": "^7.20.7",
+    "@babel/core": "^7.20.12",
+    "@babel/node": "^7.20.7",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/register": "^7.18.9",
     "autoprefixer": "^10.4.13",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -24,11 +29,6 @@
     "sqlite3": "^5.1.4"
   },
   "devDependencies": {
-    "@babel/cli": "^7.20.7",
-    "@babel/core": "^7.20.12",
-    "@babel/node": "^7.20.7",
-    "@babel/preset-env": "^7.20.2",
-    "@babel/register": "^7.18.9",
     "@tailwindcss/typography": "tailwindcss/typography",
     "babel-jest": "^29.4.1",
     "daisyui": "^2.50.0",
