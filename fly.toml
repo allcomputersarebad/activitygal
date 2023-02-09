@@ -7,9 +7,14 @@ processes = []
 
 [env]
   PORT = "8080"
+  PERSISTENT_STORAGE = "/data"
 
 [experimental]
   auto_rollback = true
+
+[mounts]
+  source="activitygal_demo"
+  destination="/data"
 
 [[services]]
   http_checks = []
