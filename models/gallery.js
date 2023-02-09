@@ -8,8 +8,7 @@ export default (db, DataTypes) => {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      isUUID: 4,
+      defaultValue: () => Date.now() * 10 + Math.floor(Math.random() * 10),
     },
     title: {
       type: DataTypes.STRING,
@@ -30,18 +29,6 @@ export default (db, DataTypes) => {
       },
     },
   });
-
-  Gallery.prototype.noteJson = (base) => {
-    const galleryUrl = new URL(this.path, base);
-    const pageUrl = new URL(this.Page.path, base);
-    return {
-      content: this.description, // this.gallery.title? pug template?
-      path: galleryUrl.href,
-      type: "note",
-      attributedTo: pageUrl.href,
-      attachment: this.Photos.map((p) => p.attachmentJson()),
-    };
-  };
 
   Gallery.associate = (models) => {
     Gallery.hasMany(models.Photo);

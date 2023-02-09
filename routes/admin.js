@@ -34,33 +34,39 @@ adminRouter.post(
     const toTarget = await db.Gallery.findOne({
       where: { id: targetId },
     });
-    // (await db.Page.findOne({
-    //   where: { id: targetId },
-    // }));
-    // console.log(toTarget);
-    photos.forEach((photo) => {
-      const newPath = path.join(fsRoot, "photo", photo.filename);
-      fs.rename(photo.path, newPath).then(() =>
-        toTarget.createPhoto({
-          type: photo.mimetype,
-          resource: photo.filename,
-          originalname: photo.originalname,
+    // TODO: data per photo
+    const photoUploads = await Promise.all(
+      photos.map((photo) =>
+        fs
+          .rename(photo.path, path.join(fsRoot, "photo", photo.filename))
+          .then(() =>
+            toTarget.createPhoto({
+              type: photo.mimetype,
+              resource: photo.filename,
+              originalname: photo.originalname,
+            })
+          )
+      )
+    );
+
+    // TODO: better json vs html/htmx response
+    if (req.accepts("html")) {
+      const singleGallery = await db.Gallery.findOne({
+        where: { id: req.body.target },
+        attributes: ["id", "title", "description"],
+        include: db.Photo,
+      });
+      res.send(
+        renderFile("views/adminUploadPhotoReload.pug", {
+          galleryTitle: singleGallery.dataValues.title,
+          galleryDescription: singleGallery.dataValues.description,
+          galleryId: singleGallery.dataValues.id,
+          photos: singleGallery.dataValues.Photos,
         })
       );
-    });
-    const singleGallery = await db.Gallery.findOne({
-      where: { id: req.body.target },
-      attributes: ["id", "title", "description"],
-      include: db.Photo,
-    });
-    res.send(
-      renderFile("views/adminUploadPhotoReload.pug", {
-        galleryTitle: singleGallery.dataValues.title,
-        galleryDescription: singleGallery.dataValues.description,
-        galleryId: singleGallery.dataValues.id,
-        photos: singleGallery.dataValues.Photos,
-      })
-    );
+    } else if (req.accepts("json")) {
+      res.json(photoUploads);
+    }
   }
 );
 
@@ -130,11 +136,10 @@ adminRouter.post(
   async function (req, res, next) {
     console.log("gallery post");
     const galleryId = req.body?.galleryId;
-    console.log("galleryId", galleryId);
-    console.log("req.body", req.body);
     const galleryForm = {
       title: req.body?.title,
       description: req.body?.description,
+      PageId: req.body?.PageId,
     };
     if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
@@ -154,8 +159,7 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("page post");
-    const pageId = req.body?.pageId;
-    //const pageForm = (({ title, description }) => ({ title, description }))(req.body);
+    const pageId = req.body?.PageId;
     const pageForm = {
       title: req.body?.title,
       description: req.body?.description,
