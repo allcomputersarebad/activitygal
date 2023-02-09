@@ -36,9 +36,9 @@ adminRouter.post(
     const photoUploads = await Promise.all(
       photos.map((photo) =>
         fs
-          .rename(
+          .copyFile(
             photo.path,
-            path.join(req.app.settings.photoStorage, "photo", photo.filename)
+            path.join(req.app.settings.photoStorage, photo.filename)
           )
           .then(() =>
             toTarget.createPhoto({
