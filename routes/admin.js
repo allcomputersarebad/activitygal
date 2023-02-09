@@ -30,30 +30,25 @@ adminRouter.post(
   uploadParser.array("photos"),
   async function (req, res, next) {
     const [photos, targetId] = [req.files, req.body.target];
-    const toTarget =
-      (await db.Gallery.findOne({
-        where: { id: targetId },
-      })) ||
-      (await db.Page.findOne({
-        where: { id: targetId },
-      }));
-    photos.forEach((photo) => {
-      const newPath = path.join(fsRoot, "photo", photo.filename);
-      fs.rename(photo.path, newPath).then(() =>
-        toTarget.createPhoto({
-          type: photo.mimetype,
-          resource: photo.filename,
-          originalname: photo.originalname,
-        })
-      );
+    const toTarget = await db.Gallery.findOne({
+      where: { id: targetId },
     });
-    if (req.accepts("html")) {
-      res.redirect(toTarget.path);
-    } else if (req.accepts("json")) {
-      res.json(toTarget);
-    }
-    //next();
-    //res.redirect("/admin");
+    // TODO: data per photo
+    res.json(
+      await Promise.all(
+        photos.map((photo) =>
+          fs
+            .rename(photo.path, path.join(fsRoot, "photo", photo.filename))
+            .then(() =>
+              toTarget.createPhoto({
+                type: photo.mimetype,
+                resource: photo.filename,
+                originalname: photo.originalname,
+              })
+            )
+        )
+      )
+    );
   }
 );
 
@@ -73,10 +68,11 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("gallery post");
-    const galleryId = req.body?.gallery;
+    const galleryId = req.body?.galleryId;
     const galleryForm = {
       title: req.body?.title,
       description: req.body?.description,
+      PageId: req.body?.PageId,
     };
     if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
@@ -96,8 +92,7 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("page post");
-    const pageId = req.body?.page;
-    //const pageForm = (({ title, description }) => ({ title, description }))(req.body);
+    const pageId = req.body?.PageId;
     const pageForm = {
       title: req.body?.title,
       description: req.body?.description,

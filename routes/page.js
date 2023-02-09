@@ -47,9 +47,10 @@ pageRouter.get("/:slug.json", function (req, res, next) {
 });
 
 pageRouter.get("/:slug/outbox.json", function (req, res, next) {
+  const { page, min, max } = { ...req.query };
   res.contentType("application/activity+json");
   const pageActor = new Actor(req.page);
-  res.json(pageActor.outbox());
+  res.json(pageActor.outbox(page, min, max));
 });
 
 export default pageRouter;
