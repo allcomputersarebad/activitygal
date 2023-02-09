@@ -7,7 +7,8 @@ const database = {
     options: {
       dialect: "postgres",
       dialectOptions: {
-        ssl: true,
+        // for heroku. TODO: add cert and remove this
+        ssl: { rejectUnauthorized: false },
       },
     },
   },
