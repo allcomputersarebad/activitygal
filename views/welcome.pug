@@ -1,9 +1,15 @@
 extends index 
 
 block content
-    div(class="hero min-h-screen bg-base-200")
-        div(class="hero-content text-center")
-            div(class="max-w-md")
-                h1(class="text-5x1 font-bold") Hello there!
-                p(class="py-6") Welcome to my Photo Portfolio! I'm happy you're here blah blah blah 
-                button(class="btn btn-primary") Featured Portfolio
+    //- div(class="hero min-h-screen bg-base-200")
+    //-     div(class="hero-content text-center")
+    //-         div(class="max-w-md")
+    //-             h1(class="text-5x1 font-bold") Hello there!
+    //-             p(class="py-6") Welcome to my Photo Portfolio! I'm happy you're here blah blah blah 
+    //-             button(class="btn btn-primary") Featured Portfolio
+    div(class="hero-overlay bg-opacity-60")
+    div(class="text-center hero-content text-neutral-content")
+        div(class="w-full")
+            h1(class="mb-6 text-5xl font-bold") Hello there, welcome to my photo portfolio 
+            p(class="text-lg") Check out my galleries
+            a(class="btn btn-primary hover underline mt-8 bg-white px-2 py-1.5 rounded-sm text-black" href="gallery/:slug") Featured Portfolio
