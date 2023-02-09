@@ -22,4 +22,6 @@ const database = {
   },
 }[process.env.NODE_ENV];
 
+console.log("selected database config", database);
+
 export default database;

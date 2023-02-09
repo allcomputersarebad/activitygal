@@ -4,6 +4,8 @@ import express from "express";
 import logger from "morgan";
 const app = express();
 
+console.log(process.env.HOST, process.env.PORT);
+
 app.set(
   "publicRoot",
   `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`
