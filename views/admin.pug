@@ -22,13 +22,13 @@ block content
         form(action="/admin/gallery" method="post" enctype="application/json")
           div(class="form-control w-full max-w-xs")
             select(
-              name="galleryID"
+              name="galleryId"
               class="select select-primary w-full max-w-xs" 
               hx-get="/admin/single"
               hx-target="#gallery-data"
             )
               - var selection
-              option(value="-- New Gallery --" selected) -- New Gallery --
+              option(value="" selected) -- New Gallery --
               label(for="New Gallery")
               +iter-options(galleries)
           br
