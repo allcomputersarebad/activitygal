@@ -4,7 +4,7 @@ import path from "path";
 const uploadParser = multer({
   dest: process.env.PERSISTENT_STORAGE
     ? path.resolve(process.env.PERSISTENT_STORAGE, "upload")
-    : undefined,
+    : path.resolve("/tmp"),
 });
 
 export default uploadParser;
