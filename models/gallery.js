@@ -8,7 +8,7 @@ export default (db, DataTypes) => {
     {
       id: {
         primaryKey: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
         defaultValue: () => Date.now() * 10 + Math.floor(Math.random() * 10),
       },
       title: {
