@@ -3,20 +3,18 @@ div(id="gallery-data")
     span(class="label-text") Title: 
     div(id="gallery-title")
       input(
-        id='gallery-title' 
         name='title' 
         type='text' 
-        class='input input-bordered' 
-        value= galleryTitle
+        class='input input-bordered w-full' 
       )
   br
   label(for="description")
     span(class="label-text") Description:
     div(id="gallery-description")
       input(
-        id="gallery-description"
         name="description" 
         type="text" 
-        class="input input-bordered"
-        value= galleryDescription
+        class="input input-bordered w-full"
       )
+    br
+    input(class="btn btn-primary" type="submit" value="Create") 

@@ -15,7 +15,7 @@ adminRouter.get("/", async function (req, res, next) {
   });
   const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
   const pageData = {
-    title: "auth: " + req.auth.user,
+    title: "Welcome " + req.auth.user,
     // TODO: is this map necessary?
     galleries: allGalleries.map((g) => g.dataValues),
     pages: allPages.map((p) => p.dataValues),
@@ -33,24 +33,41 @@ adminRouter.post(
       where: { id: targetId },
     });
     // TODO: data per photo
-    res.json(
-      await Promise.all(
-        photos.map((photo) =>
-          fs
-            .copyFile(
-              photo.path,
-              path.join(req.app.settings.photoStorage, photo.filename)
-            )
-            .then(() =>
-              toTarget.createPhoto({
-                type: photo.mimetype,
-                resource: photo.filename,
-                originalname: photo.originalname,
-              })
-            )
-        )
+    const photoUploads = await Promise.all(
+      photos.map((photo) =>
+        fs
+          .copyFile(
+            photo.path,
+            path.join(req.app.settings.photoStorage, photo.filename)
+          )
+          .then(() =>
+            toTarget.createPhoto({
+              type: photo.mimetype,
+              resource: photo.filename,
+              originalname: photo.originalname,
+            })
+          )
       )
     );
+
+    // TODO: better json vs html/htmx response
+    if (req.accepts("html")) {
+      const singleGallery = await db.Gallery.findOne({
+        where: { id: req.body.target },
+        attributes: ["id", "title", "description"],
+        include: db.Photo,
+      });
+      res.send(
+        renderFile("views/adminUploadPhotoReload.pug", {
+          galleryTitle: singleGallery.dataValues.title,
+          galleryDescription: singleGallery.dataValues.description,
+          galleryId: singleGallery.dataValues.id,
+          photos: singleGallery.dataValues.Photos,
+        })
+      );
+    } else if (req.accepts("json")) {
+      res.json(photoUploads);
+    }
   }
 );
 
@@ -65,28 +82,26 @@ adminRouter.get("/photo", (req, res) => {
   db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
 });
 
-// single gallery data
+// single gallery data for loading the gallery data into the update form
 adminRouter.get("/single", async function (req, res) {
   console.log("entering single gallery route");
   console.log(req.query);
   if (req.query.galleryId === "") {
-    res.send(
-      renderFile("views/adminGalleryForm.pug", {
-        galleryTitle: "",
-        galleryDescription: "",
-      })
-    );
+    res.send(renderFile("views/adminGalleryForm.pug"));
   } else {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
       attributes: ["id", "title", "description"],
+      include: db.Photo,
     });
-    console.log(singleGallery.dataValues.title);
+    console.log(singleGallery.dataValues);
     console.log(singleGallery.dataValues.description);
     res.send(
-      renderFile("views/adminGalleryForm.pug", {
+      renderFile("views/adminGalleryFormWithPhotos.pug", {
         galleryTitle: singleGallery.dataValues.title,
         galleryDescription: singleGallery.dataValues.description,
+        galleryId: singleGallery.dataValues.id,
+        photos: singleGallery.dataValues.Photos,
       })
     );
   }
@@ -132,10 +147,10 @@ adminRouter.post(
         where: { id: galleryId },
       });
       const galleryUpdated = await galleryToUpdate.update(galleryForm);
-      res.json(galleryUpdated);
+      res.redirect("/admin");
     } else {
       const galleryCreated = await db.Gallery.create(galleryForm);
-      res.json(galleryCreated);
+      res.redirect("/admin");
     }
   }
 );
