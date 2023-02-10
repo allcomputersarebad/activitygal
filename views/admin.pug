@@ -1,9 +1,5 @@
 extends index
 
-//- block head
-//-   link(href="./stylesheets/style.css", rel="stylesheet")
-
-
 mixin iter-options(listy)
   each thing in listy
     +id-slug-option(thing)
@@ -45,13 +41,12 @@ block content
               span(class="label-text") Description:
               div(id="gallery-description")
                 input(
-                  id="gallery-description"
                   name="description" 
                   type="text" 
                   class="input input-bordered w-full"
                 )
-          br
-          input(class="btn btn-primary" type="submit")
+            br
+            input(class="btn btn-primary" type="submit" value="Create") 
     br
     br
     div(class="card card-compact w-full bg-base-100 shadow-xl")
