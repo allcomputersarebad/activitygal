@@ -138,19 +138,24 @@ adminRouter.post(
     console.log("gallery post");
     const galleryId = req.body?.galleryId;
     const galleryForm = {
+      // TODO: comprehensive
       title: req.body?.title,
       description: req.body?.description,
       PageId: req.body?.PageId,
     };
+    let responseGallery;
     if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
         where: { id: galleryId },
       });
-      const galleryUpdated = await galleryToUpdate.update(galleryForm);
-      res.redirect("/admin");
+      responseGallery = await galleryToUpdate.update(galleryForm);
     } else {
-      const galleryCreated = await db.Gallery.create(galleryForm);
+      responseGallery = await db.Gallery.create(galleryForm);
+    }
+    if (req.accepts("html")) {
       res.redirect("/admin");
+    } else if (req.accepts("json")) {
+      res.json(responseGallery);
     }
   }
 );

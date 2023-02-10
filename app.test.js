@@ -159,6 +159,7 @@ const postMockGalleries = async (testPages, pageAssoc) => {
     const sendGal = { ...gal, PageId };
     const galResult = await request(baseUrl)
       .post("/admin/gallery")
+      .accept("json")
       .auth(...auth)
       .type("form")
       .send(sendGal);
@@ -170,6 +171,7 @@ const postMockGalleries = async (testPages, pageAssoc) => {
 const postMockPhotos = async (gallery, photos) => {
   const photosRequest = request(baseUrl)
     .post("/admin/photo")
+    .accept("json")
     .type("form")
     .auth(...auth)
     .field("target", gallery);
