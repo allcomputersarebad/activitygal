@@ -1,0 +1,56 @@
+mixin photo({path, alt, title})
+  .preview
+    img(src=path alt=alt name=title class="rounded-box")
+    div(id="photo-data")
+      label(for="image")
+        span(class="label-text") Title: 
+        div(id=src)
+          input(
+            name='title' 
+            type='text' 
+            class='input input-bordered w-full' 
+            value= name
+          )
+
+div(id="photo-display-upload")
+  section(class="mt-4 mx-auto w-10/12 relative")
+    div(class="grid grid-cols-3 justify-center gap-3")
+    if photos 
+    each item in photos
+      +photo(item)
+      br
+    else
+      p(class="alert alert-info-primary ") No photos at the moment!
+      div(class="card card-compact w-full bg-base-100 shadow-xl")
+    div(class="photo-upload" id="photo-upload")
+      h2(class="card-title") Photo Upload
+      form(
+        htmx-post="/admin/photo" 
+        hx-encoding="multipart/form-data" 
+        htmx-target="#photo-display-upload"
+      )
+        div(class="form-control w-full max-w-xs")
+          label(for="target") Location: 
+          select(
+            name="target"
+            class="select select-primary w-full max-w-xs"
+          )
+            option(value=galleryId display=none selected) #{galleryId}
+        br
+        label(for="photos")
+          span(class="label-text") Photo(s):
+          div(id="photos")
+            input(
+              name="photos" 
+              type="file" 
+              class="file-input file-input-bordered file-input-primary w-full max-w-xs"
+              multiple="multiple" 
+              accept="image/*" 
+              required="required"
+            )
+          div(id="imagePreview")
+        br
+        input(
+          class="btn btn-primary" 
+          type="submit" 
+          value="Upload")
