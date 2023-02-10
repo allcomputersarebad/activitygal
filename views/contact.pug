@@ -1,40 +1,25 @@
 extend index 
 
-block content 
-  p Hi there! Contact me here.
-  //- update where this form data is going
-  //- form(action="example.htm" method="post")
-  //-   | Name: 
-  //-   label(for="name")
-  //-   input(type="text" id="name" name="name" required="required")
-  //-   br
-  //-   | Email:    
-  //-   label(form="email")
-  //-   input(type="text" id="email" name="email" required="required")
-  //-   br
-  //-   | Message:    
-  //-   label(form="message")
-  //-   input(type="text" id="message" name="message" required="required")
-  //-   br
-  //-   input(type="submit")
-  div(class="form-control")
-    label(class="label")
-      span(class="label-text") Your Name 
-    label(class="input-group input-group-vertical")
-      span Name 
-      input(type="text" placeholder="Mickey Mouse" class="input input-bordered")
-    label(class="label")
-      span(class="label-text") Your Email 
-    label(class="input-group input-group-vertical")
-      span Email 
-      input(type="text" placeholder="info@site.com" class="input input-bordered")
-    label(class="label")
-      span(class="label-text") Your Message 
-    label(class="input-group input-group-vertical")
-      span What's up? 
-      input(type="text" placeholder="I love your photos!" class="input input-bordered")
-    br
-    button(class="btn btn-lg")
-      input(type="submit")
+block content
+  div(class="hero-content hero")
+    div(class="w-full")
+      h1(class="mb-6 text-5xl font-bold") hi there!
+      p contact me
+    div(class="form-control")
+      label(class="name")
+        span(class="label-text") Your Name 
+        div
+          input(type="text" placeholder="Mickey Mouse" class="input input-bordered")
+      label(class="email")
+        span(class="label-text") Your Email 
+        div
+          input(type="text" placeholder="info@site.com" class="input input-bordered")
+      label(class="message")
+        span(class="label-text") Your Message 
+        div
+          input(type="text" placeholder="I love your photos!" class="input input-bordered")
+      br
+      button(class="btn btn-lg btn-primary")
+        input(type="submit")
 
     // i don't love how the text boxes don't line up but that's a problem for later

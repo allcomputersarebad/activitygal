@@ -8,14 +8,16 @@ mixin gallery(g)
         p= g.description
 
 block content
-  h1 Please select a gallery to view
-
-  nav
-    each g in galleries
-      div(class="card card-compact w-96 bg-base-100 shadow-xl")
-        div(class="card-body")
-          h2
-            +gallery(g)
-          div(class="cards-actions justify-end")
-        g.description
-      br
+  div(class="hero-content")
+    div(class="w-full")
+      h1(class="mb-6 text-5xl font-bold") galleries
+      p Please select a gallery to view
+    nav
+      each g in galleries
+        div(class="card card-compact w-96 bg-base-100 shadow-xl")
+          div(class="card-body")
+            h2(class="card-title ")
+              +gallery(g)
+            div(class="cards-actions justify-end")
+          g.description
+        br
