@@ -8,15 +8,15 @@ import logger from "morgan";
 const app = express();
 
 app.set(
-  "publicRoot",
-  `${process.env.EXTERNAL_PROTOCOL}://${
-    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  "rootUrl",
+  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
+    process.env.EXTERNAL_HOST ?? `localhost:${process.env.PORT ?? 3000}`
   }`
 );
-app.set("publicHost", process.env.EXTERNAL_HOST ?? "localhost");
+app.set("publicHost", process.env.EXTERNAL_HOST ?? false);
 app.set(
   "photoStorage",
-  path.resolve(process.env?.PERSISTENT_STORAGE ?? __dirname, "photo")
+  path.resolve(process.env.PERSISTENT_STORAGE ?? __dirname, "photo")
 );
 fs.mkdirSync(app.get("photoStorage"), { recursive: true });
 
