@@ -3,3 +3,6 @@ Dockerfile
 .dockerignore
 node_modules
 .git
+data
+mock_data
+.DS_Store
