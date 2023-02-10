@@ -3,3 +3,13 @@ Dockerfile
 .dockerignore
 node_modules
 .git
+data
+mock_data
+.DS_Store
+*.sqlite
+coverage
+.env
+.envrc
+*.log
+*.lock
+.vscode
