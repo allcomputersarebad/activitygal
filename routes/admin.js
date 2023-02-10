@@ -17,7 +17,7 @@ adminRouter.get("/", async function (req, res, next) {
   });
   const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
   const pageData = {
-    title: "auth: " + req.auth.user,
+    title: "Welcome " + req.auth.user,
     // TODO: is this map necessary?
     galleries: allGalleries.map((g) => g.dataValues),
     pages: allPages.map((p) => p.dataValues),
@@ -31,13 +31,13 @@ adminRouter.post(
   uploadParser.array("photos"),
   async function (req, res, next) {
     const [photos, targetId] = [req.files, req.body.target];
-    const toTarget =
-      (await db.Gallery.findOne({
-        where: { id: targetId },
-      })) ||
-      (await db.Page.findOne({
-        where: { id: targetId },
-      }));
+    const toTarget = await db.Gallery.findOne({
+      where: { id: targetId },
+    });
+    // (await db.Page.findOne({
+    //   where: { id: targetId },
+    // }));
+    // console.log(toTarget);
     photos.forEach((photo) => {
       const newPath = path.join(fsRoot, "photo", photo.filename);
       fs.rename(photo.path, newPath).then(() =>
@@ -48,13 +48,19 @@ adminRouter.post(
         })
       );
     });
-    if (req.accepts("html")) {
-      res.redirect(toTarget.path);
-    } else if (req.accepts("json")) {
-      res.json(toTarget);
-    }
-    //next();
-    //res.redirect("/admin");
+    const singleGallery = await db.Gallery.findOne({
+      where: { id: req.body.target },
+      attributes: ["id", "title", "description"],
+      include: db.Photo,
+    });
+    res.send(
+      renderFile("views/adminUploadPhotoReload.pug", {
+        galleryTitle: singleGallery.dataValues.title,
+        galleryDescription: singleGallery.dataValues.description,
+        galleryId: singleGallery.dataValues.id,
+        photos: singleGallery.dataValues.Photos,
+      })
+    );
   }
 );
 
@@ -69,7 +75,7 @@ adminRouter.get("/photo", (req, res) => {
   db.Photo.findAll().then((allPhotos) => res.json(allPhotos));
 });
 
-// single gallery data
+// single gallery data for loading the gallery data into the update form
 adminRouter.get("/single", async function (req, res) {
   console.log("entering single gallery route");
   console.log(req.query);
@@ -87,6 +93,7 @@ adminRouter.get("/single", async function (req, res) {
       renderFile("views/adminGalleryFormWithPhotos.pug", {
         galleryTitle: singleGallery.dataValues.title,
         galleryDescription: singleGallery.dataValues.description,
+        galleryId: singleGallery.dataValues.id,
         photos: singleGallery.dataValues.Photos,
       })
     );
@@ -134,10 +141,10 @@ adminRouter.post(
         where: { id: galleryId },
       });
       const galleryUpdated = await galleryToUpdate.update(galleryForm);
-      res.json(galleryUpdated);
+      res.redirect("/admin");
     } else {
       const galleryCreated = await db.Gallery.create(galleryForm);
-      res.json(galleryCreated);
+      res.redirect("/admin");
     }
   }
 );
