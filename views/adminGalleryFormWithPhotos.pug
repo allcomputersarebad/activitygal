@@ -51,12 +51,11 @@ div(id="gallery-data")
             hx-encoding="multipart/form-data"
           )
             div(class="form-control w-full max-w-xs")
-              label(for="target") Location: 
               select(
+                hidden
                 name="target"
-                class="select select-primary w-full max-w-xs"
               )
-                option(value=galleryId display=none selected) #{galleryId}
+                option(value=galleryId selected)
             br
             label(for="photos")
               span(class="label-text") Photo(s):
