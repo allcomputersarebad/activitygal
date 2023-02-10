@@ -9,7 +9,9 @@ mixin id-slug-option({id, title})
     option(value=id)=title
 
 block content
-  h1=title
+  div(class="text-center hero-content")
+    div(class="w-full")
+      h1(class="mb-6 text-5xl font-bold")= title
   br
   div
     div(class="card card-compact w-full bg-base-100 shadow-xl")
