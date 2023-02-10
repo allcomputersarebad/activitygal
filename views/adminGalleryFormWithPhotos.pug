@@ -1,5 +1,16 @@
 mixin photo({path, alt, title})
-  img(src=path alt=alt name=title class="rounded-box")
+  .preview
+    img(src=path alt=alt name=title class="rounded-box")
+    div(id="photo-data")
+      label(for="image")
+        span(class="label-text") Title: 
+        div(id=src)
+          input(
+            name='title' 
+            type='text' 
+            class='input input-bordered w-full' 
+            value= name
+          )
 
 div(id="gallery-data")
   label(for="title")
@@ -30,3 +41,31 @@ div(id="gallery-data")
         br
       else
         p(class="alert alert-info-primary ") No photos at the moment!
+        div(class="card card-compact w-full bg-base-100 shadow-xl")
+      div(class="photo-upload")
+        h2(class="card-title") Photo Upload
+        form(action="/admin/photo", method="post", enctype="multipart/form-data")
+          div(class="form-control w-full max-w-xs")
+            label(for="target") Location: 
+            select(
+              name="target"
+              class="select select-primary w-full max-w-xs"
+            )
+              option(value=galleryId display=none selected) #{galleryId}
+          br
+          label(for="photos")
+            span(class="label-text") Photo(s):
+            div(id="photos")
+              input(
+                name="photos" 
+                type="file" 
+                class="file-input file-input-bordered file-input-primary w-full max-w-xs"
+                multiple="multiple" 
+                accept="image/*" 
+                required="required"
+              )
+            div(id="imagePreview")
+          br
+          input(class="btn btn-primary" type="submit" value="Upload")
+    br
+    input(class="btn btn-primary" type="submit" value="Update") 
