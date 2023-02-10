@@ -133,7 +133,7 @@ adminRouter.post(
     console.log("galleryId", galleryId);
     console.log("req.body", req.body);
     const galleryForm = {
-      title: req.body?.title,
+      title: req.body?.title[0],
       description: req.body?.description,
     };
     if (galleryId) {
