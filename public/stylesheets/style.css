@@ -648,6 +648,12 @@ html {
 .btn[disabled] {
   pointer-events: none;
 }
+.btn-circle {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
 .btn.loading,
 .btn.loading:hover {
   pointer-events: none;
@@ -1100,12 +1106,6 @@ html {
   transform: translateY(0) scale(1);
   z-index: 3;
   opacity: 1;
-}
-.alert-info {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--in) / var(--tw-bg-opacity));
-  --tw-text-opacity: 1;
-  color: hsl(var(--inc, var(--nc)) / var(--tw-text-opacity));
 }
 .btn-outline.btn-primary .badge {
   --tw-border-opacity: 1;
@@ -1574,6 +1574,11 @@ html {
   border-bottom-right-radius: inherit;
   border-bottom-left-radius: inherit;
 }
+.mockup-phone .display {
+  overflow: hidden;
+  border-radius: 40px;
+  margin-top: -25px;
+}
 @keyframes progress-loading {
   50% {
     left: 107%;
@@ -1678,6 +1683,24 @@ html {
   width: 4rem;
   padding: 0px;
 }
+.btn-circle:where(.btn-xs) {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
+.btn-circle:where(.btn-sm) {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
+.btn-circle:where(.btn-md) {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
 .btn-circle:where(.btn-lg) {
   height: 4rem;
   width: 4rem;
@@ -1778,27 +1801,15 @@ html {
   border-bottom-right-radius: inherit;
   border-bottom-left-radius: unset;
 }
-.absolute {
-  position: absolute;
-}
 .relative {
   position: relative;
-}
-.left-1\/2 {
-  left: 50%;
 }
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
 }
-.-ml-20 {
-  margin-left: -5rem;
-}
 .mb-6 {
   margin-bottom: 1.5rem;
-}
-.mt-10 {
-  margin-top: 2.5rem;
 }
 .mt-4 {
   margin-top: 1rem;
@@ -1811,6 +1822,9 @@ html {
 }
 .grid {
   display: grid;
+}
+.hidden {
+  display: none;
 }
 .min-h-screen {
   min-height: 100vh;
@@ -1858,10 +1872,6 @@ html {
 .bg-base-200 {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--b2, var(--b1)) / var(--tw-bg-opacity));
-}
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 .bg-opacity-60 {
   --tw-bg-opacity: 0.6;
@@ -1926,7 +1936,6 @@ html {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
     var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .preview {
   width: 25%;
 }
