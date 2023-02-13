@@ -66,6 +66,10 @@ div(id="gallery-data")
         )
       br
     div(class="w-full") 
+      if currentPage
+        span(class="label-text") Change Current Page Association
+      else 
+        span(class=label-text) Select a Page
       select(
         name="pageId"
         class="select select-primary w-full"
