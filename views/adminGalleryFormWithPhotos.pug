@@ -69,7 +69,7 @@ div(id="gallery-data")
       if currentPage
         span(class="label-text") Change Current Page Association
       else 
-        span(class=label-text) Select a Page
+        span(class="label-text") Select a Page
       select(
         name="pageId"
         class="select select-primary w-full"
@@ -79,8 +79,11 @@ div(id="gallery-data")
         if pages
           +iter-options(pages)
     div(id="photo-display-upload")
+      br
+      span(class="label-text") Gallery Photos
       section(class="mt-4 mx-auto w-10/12 relative")
         div(class="grid grid-cols-3 justify-center gap-3")
+        
         if photos 
         each item in photos
           +photo(item)
