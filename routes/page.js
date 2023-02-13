@@ -1,8 +1,6 @@
 import express from "express";
 import db from "../models";
 
-import { Actor } from "../activity";
-
 const pageRouter = express.Router();
 
 pageRouter.param("slug", async function (req, res, next, slugParam) {
@@ -15,11 +13,6 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   next();
 });
 
-// is this going to break the async function below? maybe.
-pageRouter.get("/", function (req, res, next) {
-  res.render("welcome", { title: "Welcome" });
-});
-
 /* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
   const page = await db.Page.findOne({
@@ -28,7 +21,7 @@ pageRouter.get("/", async function (req, res, next) {
   });
   res.render("welcome", {
     ...(page ?? {}),
-    title: page?.title ?? "ActivityGal",
+    title: page?.title ?? "Welcome",
   });
 });
 
@@ -46,15 +39,13 @@ pageRouter.get("/:slug", function (req, res, next) {
 
 pageRouter.get("/:slug.json", function (req, res, next) {
   res.contentType("application/activity+json");
-  const pageActor = new Actor(req.page);
-  res.json(pageActor);
+  res.json(page.actor());
 });
 
 pageRouter.get("/:slug/outbox.json", function (req, res, next) {
   const { page, min, max } = { ...req.query };
   res.contentType("application/activity+json");
-  const pageActor = new Actor(req.page);
-  res.json(pageActor.outbox(page, min, max));
+  res.json(page.outbox(page, min, max));
 });
 
 export default pageRouter;

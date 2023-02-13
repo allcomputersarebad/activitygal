@@ -1,6 +1,14 @@
 import SequelizeSlugify from "sequelize-slugify";
 
-// TODO: ondelete: emit delete action
+import { URL } from "url";
+
+const base = new URL(
+  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
+    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  }`
+);
+
+// TODO: ondelete: emit delete activity
 
 export default (db, DataTypes) => {
   const Gallery = db.define(
@@ -29,6 +37,18 @@ export default (db, DataTypes) => {
           return "/gallery/" + this.slug;
         },
       },
+      galleryUrl: {
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+        get() {
+          return new URL(this.path, base);
+        },
+      },
+      activityUrl: {
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+        get() {
+          return new URL(this.path + ".json", base);
+        },
+      },
     },
     { paranoid: true }
   );
@@ -40,6 +60,30 @@ export default (db, DataTypes) => {
 
   SequelizeSlugify.slugifyModel(Gallery, {
     source: ["title"],
+  });
+
+  Gallery.createNote = () => ({
+    id: this.activityUrl,
+    type: "Create",
+    actor: this.Page.profileUrl,
+    published: this.createdAt,
+    to: ["https://www.w3.org/ns/activitystreams#Public"],
+    cc: [this.Page.followersUrl],
+    object: this.note(),
+  });
+
+  Gallery.note = () => ({
+    id: this.galleryUrl,
+    type: "note",
+    published: this.createdAt,
+    url: this.galleryUrl,
+    attributedTo: this.Page.actorUrl,
+    to: ["https://www.w3.org/ns/activitystreams#Public"],
+    cc: [this.Page.followersUrl],
+    content: this.description
+      ? [this.title, this.description].join("<br />")
+      : this.title,
+    attachment: this.Photos?.map((p) => p.attachment()) || [],
   });
 
   return Gallery;
