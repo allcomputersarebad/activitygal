@@ -85,8 +85,10 @@ adminRouter.get("/single", async function (req, res) {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
       attributes: ["id", "title", "description"],
-      include: db.Photo,
+      include: [db.Photo, db.Page],
     });
+    const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
+    console.log(allPages);
     console.log(singleGallery.dataValues);
     console.log(singleGallery.dataValues.description);
     res.send(
@@ -95,6 +97,8 @@ adminRouter.get("/single", async function (req, res) {
         galleryDescription: singleGallery.dataValues.description,
         galleryId: singleGallery.dataValues.id,
         photos: singleGallery.dataValues.Photos,
+        currentPage: singleGallery.dataValues.Page,
+        pages: allPages,
       })
     );
   }
