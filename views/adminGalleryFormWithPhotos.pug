@@ -2,6 +2,14 @@ mixin photo({path, id, title, caption, description})
   img(src=path id=id name=title class="preview rounded-box")
   div(id="photo-data" class="w-full")
     label(for="image")
+      span()
+        div(id="label-text")
+          input(
+            name='photoId'
+            type='number'
+            value=id
+            hidden
+          )
       span(class="label-text") Title
         div(id="photo-title")
           input(
