@@ -35,7 +35,7 @@ block content
           br
           div(id="gallery-data")
             label(for="title")
-              span(class="label-text") Title: 
+              span(class="label-text") Title
               div(id="gallery-title")
                 input(
                 name="title" 
@@ -44,7 +44,7 @@ block content
               )
             br
             label(for="description")
-              span(class="label-text") Description:
+              span(class="label-text") Description
               div(id="gallery-description")
                 input(
                   name="description" 
@@ -69,15 +69,15 @@ block content
               option(value="" selected) -- New Page --
               +iter-options(pages)
             br
-            div(id="page-data")
-              label(for="title")
-                span(class="label-text") Title:
-                div(id="page-title")
-                  input(
-                    name="title"
-                    type="text"
-                    class="input input-bordered w-full"
-                  )
+          div(id="page-data")
+            label(for="title")
+              span(class="label-text") Title
+              div(id="page-title")
+                input(
+                  name="title"
+                  type="text"
+                  class="input input-bordered w-full"
+                )
           br
           input(class="btn btn-primary" type="submit")
 
