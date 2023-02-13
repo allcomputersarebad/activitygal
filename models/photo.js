@@ -33,5 +33,14 @@ export default (db, DataTypes) => {
     Photo.belongsTo(models.Gallery);
   };
 
+  Photo.attachment = () => ({
+    type: "Document",
+    mediaType: this.mediaType, // like "image/png",
+    url: new URL(this.path, base),
+    name: this.altText,
+    //"focalPoint": [ 0.6, 1.0 ], // unnecessary
+    //width, height // necessary?
+  });
+
   return Photo;
 };
