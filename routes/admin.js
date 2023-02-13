@@ -104,7 +104,7 @@ adminRouter.get("/single", async function (req, res) {
         galleryDescription: singleGallery.dataValues.description,
         galleryId: singleGallery.dataValues.id,
         photos: singleGallery.dataValues.Photos,
-        currentPage: singleGallery.dataValues.Page,
+        currentPage: singleGallery.dataValues.Page.dataValues.title,
         pages: allPages,
       })
     );
@@ -136,14 +136,18 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("gallery post");
+    console.log(req.body);
     const galleryId = req.body?.galleryId;
     const galleryForm = {
       title:
         typeof req.body?.title === "string"
           ? req.body?.title
           : req.body?.title[0],
-      description: req.body?.description,
-      PageId: req.body?.PageId,
+      description:
+        typeof req.body?.description === "string"
+          ? req.body?.description
+          : req.body?.description[0],
+      PageId: req.body?.pageId,
     };
     let responseGallery;
     if (galleryId) {
