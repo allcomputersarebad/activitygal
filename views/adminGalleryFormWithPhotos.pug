@@ -1,20 +1,41 @@
-mixin photo({path, alt, title})
+mixin photo({path, title, caption, description})
   .preview
     img(src=path alt=alt name=title class="rounded-box")
-    div(id="photo-data")
+    div(id="photo-data" class="max-w-xl")
       label(for="image")
-        span(class="label-text") Title: 
-        div(id=src)
+        span(class="label-text") Title
           input(
             name='title' 
             type='text' 
-            class='input input-bordered w-full' 
-            value= name
+            class='input input-bordered w-96' 
+            value= title
           )
+        span(class="label-text") Caption
+          input(
+            name='caption' 
+            type='text' 
+            class='input input-bordered w-96' 
+            value= caption
+          )
+        span(class="label-text") Description
+          input(
+            name='description' 
+            type='text' 
+            class='input input-bordered w-96' 
+            value= description
+          )
+
+mixin iter-options(listy)
+  each thing in listy
+    +id-slug-option(thing)
+
+mixin id-slug-option({id, title})
+    label(for=title)
+    option(value=id)=title
 
 div(id="gallery-data")
   label(for="title")
-    span(class="label-text") Title: 
+    span(class="label-text") Title
     div(id="gallery-title")
       input(
         name='title' 
@@ -24,7 +45,7 @@ div(id="gallery-data")
       )
   br
   label(for="description")
-    span(class="label-text") Description:
+    span(class="label-text") Description
     div(id="gallery-description")
       input(
         name="description" 
@@ -33,6 +54,26 @@ div(id="gallery-data")
         value= galleryDescription
       )
     br
+    label(for="gallery-page-association")
+      span(class="label-text") Current Page 
+      div(id="current-page")
+        input(
+          name="title"
+          type="text"
+          class="input input-bordered w-full"
+          value= currentPage ? "pageTitle" : "-- No Current Page Association --"
+          disabled
+        )
+      br
+    div(class="w-full") 
+      select(
+        name="pageId"
+        class="select select-primary w-full"
+      )
+        label(for="page-association")
+        option(value="-- No Selection --" selected)
+        if pages
+          +iter-options(pages)
     div(id="photo-display-upload")
       section(class="mt-4 mx-auto w-10/12 relative")
         div(class="grid grid-cols-3 justify-center gap-3")
@@ -51,12 +92,11 @@ div(id="gallery-data")
             hx-encoding="multipart/form-data"
           )
             div(class="form-control w-full max-w-xs")
-              label(for="target") Location: 
               select(
+                hidden
                 name="target"
-                class="select select-primary w-full max-w-xs"
               )
-                option(value=galleryId display=none selected) #{galleryId}
+                option(value=galleryId selected)
             br
             label(for="photos")
               span(class="label-text") Photo(s):

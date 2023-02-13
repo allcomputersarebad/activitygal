@@ -92,8 +92,10 @@ adminRouter.get("/single", async function (req, res) {
     const singleGallery = await db.Gallery.findOne({
       where: { id: req.query.galleryId },
       attributes: ["id", "title", "description"],
-      include: db.Photo,
+      include: [db.Photo, db.Page],
     });
+    const allPages = await db.Page.findAll({ attributes: ["id", "title"] });
+    console.log(allPages);
     console.log(singleGallery.dataValues);
     console.log(singleGallery.dataValues.description);
     res.send(
@@ -102,6 +104,8 @@ adminRouter.get("/single", async function (req, res) {
         galleryDescription: singleGallery.dataValues.description,
         galleryId: singleGallery.dataValues.id,
         photos: singleGallery.dataValues.Photos,
+        currentPage: singleGallery.dataValues.Page,
+        pages: allPages,
       })
     );
   }
@@ -112,11 +116,7 @@ adminRouter.get("/singlepage", async function (req, res) {
   console.log("entering single page route");
   console.log(req.query);
   if (req.query.pageId === "") {
-    res.send(
-      renderFile("views/adminPageForm.pug", {
-        pageTitle: "",
-      })
-    );
+    res.send(renderFile("views/adminPageFormCreate.pug", {}));
   } else {
     const singlePage = await db.Page.findOne({
       where: { id: req.query.pageId },
@@ -124,7 +124,7 @@ adminRouter.get("/singlepage", async function (req, res) {
     });
     console.log(singlePage.dataValues.title);
     res.send(
-      renderFile("views/adminPageForm.pug", {
+      renderFile("views/adminPageFormUpdate.pug", {
         pageTitle: singlePage.dataValues.title,
       })
     );
@@ -138,8 +138,10 @@ adminRouter.post(
     console.log("gallery post");
     const galleryId = req.body?.galleryId;
     const galleryForm = {
-      // TODO: comprehensive
-      title: req.body?.title,
+      title:
+        typeof req.body?.title === "string"
+          ? req.body?.title
+          : req.body?.title[0],
       description: req.body?.description,
       PageId: req.body?.PageId,
     };
@@ -175,10 +177,10 @@ adminRouter.post(
         where: { id: pageId },
       });
       const pageUpdated = await pageToUpdate.update(pageForm);
-      res.json(pageUpdated);
+      res.redirect("/admin");
     } else {
       const pageCreated = await db.Page.create(pageForm);
-      res.json(pageCreated);
+      res.redirect("/admin");
     }
   }
 );
