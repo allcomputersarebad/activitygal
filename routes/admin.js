@@ -57,6 +57,7 @@ adminRouter.post(
         attributes: ["id", "title", "description"],
         include: db.Photo,
       });
+      console.log(singleGallery.dataValues.Photos);
       res.send(
         renderFile("views/adminUploadPhotoReload.pug", {
           galleryTitle: singleGallery.dataValues.title,
@@ -158,17 +159,31 @@ adminRouter.post(
     const photoUpdate = req.body.photoId ? true : false;
     if (photoUpdate) {
       console.log("in the photoUpdate route");
-      for (const [i, photoId] of req.body.photoId.entries()) {
+      if (typeof req.body.photoId === "string") {
+        console.log("i'm a single photo ****");
         const photoToUpdate = await db.Photo.findOne({
-          where: { id: photoId },
+          where: { id: req.body.photoId },
         });
         const photoForm = {
-          title: req.body.photoTitle[i],
-          caption: req.body.photoCaption[i],
-          description: req.body.photoDescription[i],
+          title: req.body.photoTitle,
+          caption: req.body.photoCaption,
+          description: req.body.photoDescription,
         };
         console.log(photoForm);
         const responsePhoto = photoToUpdate.update(photoForm);
+      } else {
+        for (const [i, photoId] of req.body.photoId.entries()) {
+          const photoToUpdate = await db.Photo.findOne({
+            where: { id: photoId },
+          });
+          const photoForm = {
+            title: req.body.photoTitle[i],
+            caption: req.body.photoCaption[i],
+            description: req.body.photoDescription[i],
+          };
+          console.log("_______$$$$$", photoForm);
+          const responsePhoto = photoToUpdate.update(photoForm);
+        }
       }
     }
     if (req.accepts("html")) {
