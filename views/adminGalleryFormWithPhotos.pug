@@ -1,27 +1,29 @@
-mixin photo({path, title, caption, description})
-  .preview
-    img(src=path alt=alt name=title class="rounded-box")
-    div(id="photo-data" class="max-w-xl")
-      label(for="image")
-        span(class="label-text") Title
+mixin photo({path, id, title, caption, description})
+  img(src=path id=id name=title class="preview rounded-box")
+  div(id="photo-data" class="w-full")
+    label(for="image")
+      span(class="label-text") Title
+        div(id="photo-title")
           input(
-            name='title' 
+            name='photoTitle' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= title
           )
-        span(class="label-text") Caption
+      span(class="label-text") Caption
+        div(id="photo-caption")
           input(
-            name='caption' 
+            name='photoCaption' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= caption
           )
-        span(class="label-text") Description
+      span(class="label-text") Description
+        div(id="photo-description")
           input(
-            name='description' 
+            name='photoDescription' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= description
           )
 
@@ -54,73 +56,72 @@ div(id="gallery-data")
         value= galleryDescription
       )
     br
-    label(for="gallery-page-association")
-      span(class="label-text") Current Page 
-      div(id="current-page")
-        input(
-          name="title"
-          type="text"
-          class="input input-bordered w-full"
-          value= currentPage ? currentPage : "-- No Current Page Association --"
-          disabled
-        )
-      br
-    div(class="w-full") 
-      if currentPage
-        span(class="label-text") Change Current Page Association
-      else 
-        span(class="label-text") Select a Page
-      select(
-        name="pageId"
-        class="select select-primary w-full"
+  label(for="gallery-page-association")
+    span(class="label-text") Current Page 
+    div(id="current-page")
+      input(
+        name="title"
+        type="text"
+        class="input input-bordered w-full"
+        value= currentPage ? currentPage : "-- No Current Page Association --"
+        disabled
       )
-        label(for="page-association")
-        option(value="-- No Selection --" selected)
-        if pages
-          +iter-options(pages)
-    div(id="photo-display-upload")
-      br
-      span(class="label-text") Gallery Photos
-      section(class="mt-4 mx-auto w-10/12 relative")
-        div(class="grid grid-cols-3 justify-center gap-3")
-        
-        if photos 
-        each item in photos
-          +photo(item)
+    br
+  div(class="w-full") 
+    if currentPage
+      span(class="label-text") Change Current Page Association
+    else 
+      span(class="label-text") Select a Page
+    select(
+      name="pageId"
+      class="select select-primary w-full"
+    )
+      label(for="page-association")
+      option(value="" selected disabled)
+      if pages
+        +iter-options(pages)
+  div(id="photo-display-upload")
+    br
+    span(class="label-text") Gallery Photos
+    section(class="mt-4 mx-auto w-10/12 relative")
+      div(class="grid grid-cols-3 justify-center gap-3")
+      if photos 
+      each item in photos
+        +photo(item)
+        br
+      else
+        p(class="alert alert-info-primary ") No photos at the moment!
+        div(class="card card-compact w-full bg-base-100 shadow-xl")
+      div(class="photo-upload")
+        h2(class="card-title") Photo Upload
+        form(
+          hx-post="/admin/photo" 
+          hx-target="#photo-display-upload"
+          hx-encoding="multipart/form-data"
+        )
+          div(class="form-control w-full max-w-xs")
+            select(
+              hidden
+              name="target"
+            )
+              option(value=galleryId selected)
           br
-        else
-          p(class="alert alert-info-primary ") No photos at the moment!
-          div(class="card card-compact w-full bg-base-100 shadow-xl")
-        div(class="photo-upload")
-          h2(class="card-title") Photo Upload
-          form(
-            hx-post="/admin/photo" 
-            hx-target="#photo-display-upload"
-            hx-encoding="multipart/form-data"
-          )
-            div(class="form-control w-full max-w-xs")
-              select(
-                hidden
-                name="target"
+          label(for="photos")
+            span(class="label-text") Photo(s):
+            div(id="photos")
+              input(
+                name="photos" 
+                type="file" 
+                class="file-input file-input-bordered file-input-primary w-full max-w-xs"
+                multiple="multiple" 
+                accept="image/*" 
+                required="required"
               )
-                option(value=galleryId selected)
-            br
-            label(for="photos")
-              span(class="label-text") Photo(s):
-              div(id="photos")
-                input(
-                  name="photos" 
-                  type="file" 
-                  class="file-input file-input-bordered file-input-primary w-full max-w-xs"
-                  multiple="multiple" 
-                  accept="image/*" 
-                  required="required"
-                )
-              div(id="imagePreview")
-            br
-            input(
-              class="btn btn-primary" 
-              type="submit" 
-              value="Upload")
+            div(id="imagePreview")
+          br
+          input(
+            class="btn btn-primary" 
+            type="submit" 
+            value="Upload")
     br
     input(class="btn btn-primary" type="submit" value="Update") 

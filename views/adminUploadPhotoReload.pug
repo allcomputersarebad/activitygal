@@ -1,31 +1,35 @@
-mixin photo({path, title, caption, description})
-  .preview
-    img(src=path alt=alt name=title class="rounded-box")
-    div(id="photo-data" class="max-w-xl")
-      label(for="image")
-        span(class="label-text") Title
+mixin photo({path, id, title, caption, description})
+  img(src=path id=id name=title class="preview rounded-box")
+  div(id="photo-data" class="w-full")
+    label(for="image")
+      span(class="label-text") Title
+        div(id="photo-title")
           input(
-            name='title' 
+            name='photoTitle' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= title
           )
-        span(class="label-text") Caption
+      span(class="label-text") Caption
+        div(id="photo-caption")
           input(
-            name='caption' 
+            name='photoCaption' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= caption
           )
-        span(class="label-text") Description
+      span(class="label-text") Description
+        div(id="photo-description")
           input(
-            name='description' 
+            name='photoDescription' 
             type='text' 
-            class='input input-bordered w-96' 
+            class='input input-bordered w-full' 
             value= description
           )
 
 div(id="photo-display-upload")
+  br
+  span(class="label-text") Gallery Photos
   section(class="mt-4 mx-auto w-10/12 relative")
     div(class="grid grid-cols-3 justify-center gap-3")
     if photos 
