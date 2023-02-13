@@ -136,6 +136,7 @@ adminRouter.post(
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("gallery post");
+    console.log(req.body);
     const galleryId = req.body?.galleryId;
     const galleryForm = {
       title:
@@ -146,7 +147,7 @@ adminRouter.post(
         typeof req.body?.description === "string"
           ? req.body?.description
           : req.body?.description[0],
-      PageId: req.body?.PageId,
+      PageId: req.body?.pageId,
     };
     let responseGallery;
     if (galleryId) {
