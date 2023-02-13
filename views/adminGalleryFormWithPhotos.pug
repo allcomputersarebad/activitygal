@@ -25,6 +25,14 @@ mixin photo({path, alt, title})
             value= description
           )
 
+mixin iter-options(listy)
+  each thing in listy
+    +id-slug-option(thing)
+
+mixin id-slug-option({id, title})
+    label(for=title)
+    option(value=id)=title
+
 div(id="gallery-data")
   label(for="title")
     span(class="label-text") Title
@@ -46,6 +54,26 @@ div(id="gallery-data")
         value= galleryDescription
       )
     br
+    label(for="gallery-page-association")
+      span(class="label-text") Current Page 
+      div(id="current-page")
+        input(
+          name="title"
+          type="text"
+          class="input input-bordered w-full"
+          value= currentPage ? "pageTitle" : "-- No Current Page Association --"
+          disabled
+        )
+      br
+    div(class="w-full") 
+      select(
+        name="pageId"
+        class="select select-primary w-full"
+      )
+        label(for="page-association")
+        option(value="-- No Selection --" selected)
+        if pages
+          +iter-options(pages)
     div(id="photo-display-upload")
       section(class="mt-4 mx-auto w-10/12 relative")
         div(class="grid grid-cols-3 justify-center gap-3")
