@@ -1,20 +1,33 @@
 mixin photo({path, alt, title})
   .preview
     img(src=path alt=alt name=title class="rounded-box")
-    div(id="photo-data")
+    div(id="photo-data" class="max-w-xl")
       label(for="image")
-        span(class="label-text") Title: 
-        div(id=src)
+        span(class="label-text") Title
           input(
             name='title' 
             type='text' 
-            class='input input-bordered w-full' 
-            value= name
+            class='input input-bordered w-96' 
+            value= title
+          )
+        span(class="label-text") Caption
+          input(
+            name='caption' 
+            type='text' 
+            class='input input-bordered w-96' 
+            value= caption
+          )
+        span(class="label-text") Description
+          input(
+            name='description' 
+            type='text' 
+            class='input input-bordered w-96' 
+            value= description
           )
 
 div(id="gallery-data")
   label(for="title")
-    span(class="label-text") Title: 
+    span(class="label-text") Title
     div(id="gallery-title")
       input(
         name='title' 
@@ -24,7 +37,7 @@ div(id="gallery-data")
       )
   br
   label(for="description")
-    span(class="label-text") Description:
+    span(class="label-text") Description
     div(id="gallery-description")
       input(
         name="description" 
