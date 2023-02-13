@@ -105,11 +105,7 @@ adminRouter.get("/singlepage", async function (req, res) {
   console.log("entering single page route");
   console.log(req.query);
   if (req.query.pageId === "") {
-    res.send(
-      renderFile("views/adminPageForm.pug", {
-        pageTitle: "",
-      })
-    );
+    res.send(renderFile("views/adminPageFormCreate.pug", {}));
   } else {
     const singlePage = await db.Page.findOne({
       where: { id: req.query.pageId },
@@ -117,7 +113,7 @@ adminRouter.get("/singlepage", async function (req, res) {
     });
     console.log(singlePage.dataValues.title);
     res.send(
-      renderFile("views/adminPageForm.pug", {
+      renderFile("views/adminPageFormUpdate.pug", {
         pageTitle: singlePage.dataValues.title,
       })
     );
@@ -168,10 +164,10 @@ adminRouter.post(
         where: { id: pageId },
       });
       const pageUpdated = await pageToUpdate.update(pageForm);
-      res.json(pageUpdated);
+      res.redirect("/admin");
     } else {
       const pageCreated = await db.Page.create(pageForm);
-      res.json(pageCreated);
+      res.redirect("/admin");
     }
   }
 );
