@@ -141,14 +141,8 @@ adminRouter.post(
     console.log(req.body);
     const galleryId = req.body?.galleryId;
     const galleryForm = {
-      title:
-        typeof req.body?.title === "string"
-          ? req.body?.title
-          : req.body?.title[0],
-      description:
-        typeof req.body?.description === "string"
-          ? req.body?.description
-          : req.body?.description[0],
+      title: req.body?.title,
+      description: req.body?.description,
       PageId: req.body?.pageId,
     };
     let responseGallery;
@@ -159,6 +153,23 @@ adminRouter.post(
       responseGallery = await galleryToUpdate.update(galleryForm);
     } else {
       responseGallery = await db.Gallery.create(galleryForm);
+    }
+    // upload photos
+    const photoUpdate = req.body.photoId ? true : false;
+    if (photoUpdate) {
+      console.log("in the photoUpdate route");
+      for (const [i, photoId] of req.body.photoId.entries()) {
+        const photoToUpdate = await db.Photo.findOne({
+          where: { id: photoId },
+        });
+        const photoForm = {
+          title: req.body.photoTitle[i],
+          caption: req.body.photoCaption[i],
+          description: req.body.photoDescription[i],
+        };
+        console.log(photoForm);
+        const responsePhoto = photoToUpdate.update(photoForm);
+      }
     }
     if (req.accepts("html")) {
       res.redirect("/admin");
