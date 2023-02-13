@@ -142,7 +142,10 @@ adminRouter.post(
         typeof req.body?.title === "string"
           ? req.body?.title
           : req.body?.title[0],
-      description: req.body?.description,
+      description:
+        typeof req.body?.description === "string"
+          ? req.body?.description
+          : req.body?.description[0],
       PageId: req.body?.PageId,
     };
     let responseGallery;
