@@ -22,10 +22,10 @@ block content
           method="post"
           enctype="application/json"
           )
-          div(class="form-control w-full max-w-xs")
+          div(class="form-control w-full")
             select(
               name="galleryId"
-              class="select select-primary w-full max-w-xs" 
+              class="select select-primary w-full" 
               hx-get="/admin/single"
               hx-target="#gallery-data"
             )
@@ -59,10 +59,10 @@ block content
       div(class="card-body")
         h2(class="card-title") Create/Edit Page
         form(action="/admin/page", method="post", enctype="application/json")
-          div(class="form-control w-full max-w-xs")
+          div(class="form-control w-full")
             select(
               name="pageId"
-              class="select select-primary w-full max-w-xs"
+              class="select select-primary w-full"
               hx-get="/admin/singlepage"
               hx-target="#page-data"
               )
@@ -78,8 +78,8 @@ block content
                   type="text"
                   class="input input-bordered w-full"
                 )
-          br
-          input(class="btn btn-primary" type="submit")
+            br
+            input(class="btn btn-primary" type="submit" value="Create")
 
 block append scripts
   script(src="https://unpkg.com/htmx.org/dist/ext/json-enc.js" async) 
