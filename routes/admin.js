@@ -104,7 +104,7 @@ adminRouter.get("/single", async function (req, res) {
         galleryDescription: singleGallery.dataValues.description,
         galleryId: singleGallery.dataValues.id,
         photos: singleGallery.dataValues.Photos,
-        currentPage: singleGallery.dataValues.Page,
+        currentPage: singleGallery.dataValues.Page.dataValues.title,
         pages: allPages,
       })
     );
