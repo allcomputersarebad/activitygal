@@ -1,13 +1,28 @@
+import "dotenv/config";
+
+import { URL } from "url";
 const request = require("supertest");
-const baseURL = "http://localhost:3000";
-const mockPhotoPath = "mock_data";
+
 const fs = require("fs");
 const path = require("path");
 
 const app = require("./app").default;
+
+let baseUrl, hostName;
+
 const db = require("./models").default;
 
+/* TODO
+ * - test more page rendering
+ * - clear db between tests
+ * - create database seeds instead of requesting all the time
+ * - do more photo tests
+ */
+
 const auth = ["admin", process.env.PHOTO_ADMIN];
+
+const mockPhotoPath = "mock_data";
+const mockPageGalleryAssoc = [1, 3, 3, 4, 4];
 
 const mockGalleries = [
   {
@@ -35,6 +50,14 @@ const mockGalleries = [
     title: "Additional Demo",
     description: "Additional gallery demonstration",
   },
+  {
+    title: "Aweghghghewa",
+    description: "So extra",
+  },
+  {
+    title: "Still need more",
+    description: "And more description",
+  },
 ];
 
 const mockPages = [
@@ -43,17 +66,8 @@ const mockPages = [
     description: "A page demonstration",
   },
   {
-    title: "Page Two",
-    description: "Another page demonstration",
-  },
-  {
-    title: "More Page",
-    description: "Demonstrating more page",
-  },
-  {
-    title: "Hidden Page",
-    description: "Hidden page demonstration",
-    hidden: true,
+    title: "A Single Page",
+    description: "Page with a single gal",
   },
   {
     title: "Empty Page",
@@ -63,6 +77,11 @@ const mockPages = [
     title: "Additional Page",
     description: "Additional page demonstration",
   },
+  {
+    title: "Hidden Page",
+    description: "Hidden page demonstration",
+    hidden: true,
+  },
 ];
 
 const mockPhotos = [
@@ -70,6 +89,11 @@ const mockPhotos = [
     title: "Demo Photo",
     description: "This photo demonstrates photos",
     caption: "This is a photo caption",
+  },
+  {
+    title: "Another Another Demo Photo",
+    description: "This is another another photo demonstrating photos",
+    caption: "This is another another photo caption",
   },
   {
     title: "Another Demo Photo",
@@ -92,34 +116,32 @@ const mockPhotos = [
     description: "This demonstrates an additional photo",
     caption: "This is a caption on an additional photo",
   },
+  {
+    title: "Aweghghghewaawgfwagweg",
+    description: "This demonstrates an additional photo",
+    caption: "This is a caption on an additional photo",
+  },
+  {
+    title: "Still need more",
+    description: "And more description",
+    caption: "And more caption",
+  },
 ];
 
 const mockPhotoRefs = Object.fromEntries(
   fs.readdirSync(mockPhotoPath).map((dir) => [
-    dir, // gallery name
-    fs // gallery photos
+    dir, // nested gallery dir name
+    fs // scan nested dir for gallery photos
       .readdirSync(path.resolve(mockPhotoPath, dir))
       .filter((file) => path.extname(file) === ".jpg")
       .map((leaf) => path.resolve(mockPhotoPath, dir, leaf)),
   ])
 );
 
-const createMockGalleries = async () => {
-  const testGalleries = Array();
-  for (let gal of mockGalleries) {
-    const galResult = await request(baseURL)
-      .post("/admin/gallery")
-      .auth(...auth)
-      .type("form")
-      .send(gal);
-    testGalleries.push(galResult?.body);
-  }
-  return testGalleries;
-};
-const createMockPages = async () => {
+const postMockPages = async () => {
   const testPages = Array();
   for (let pg of mockPages) {
-    const pgResult = await request(baseURL)
+    const pgResult = await request(baseUrl)
       .post("/admin/page")
       .auth(...auth)
       .type("form")
@@ -129,13 +151,43 @@ const createMockPages = async () => {
   return testPages;
 };
 
-// TODO: test page rendering
+const postMockGalleries = async (testPages, pageAssoc) => {
+  pageAssoc = pageAssoc ?? mockPageGalleryAssoc;
+  const testGalleries = Array();
+  for (let [i, gal] of mockGalleries.entries()) {
+    const PageId = testPages[pageAssoc[i] ?? 0]?.id;
+    const sendGal = { ...gal, PageId };
+    const galResult = await request(baseUrl)
+      .post("/admin/gallery")
+      .accept("json")
+      .auth(...auth)
+      .type("form")
+      .send(sendGal);
+    testGalleries.push(galResult?.body);
+  }
+  return testGalleries;
+};
+
+const postMockPhotos = async (gallery, photos) => {
+  const photosRequest = request(baseUrl)
+    .post("/admin/photo")
+    .accept("json")
+    .type("form")
+    .auth(...auth)
+    .field("target", gallery);
+  photos.forEach((photo) => photosRequest.attach("photos", photo));
+  return (await photosRequest)?.body;
+};
 
 let server;
 
 beforeAll(function (done) {
   db.sequelize.sync().then(() => {
-    server = app.listen("3000", done);
+    server = app.listen(process.env.PORT ?? 3000, () => {
+      baseUrl = app.get("rootUrl");
+      hostName = app.get("publicHost") || "localhost";
+      done();
+    });
   });
 });
 
@@ -143,78 +195,142 @@ afterAll(function (done) {
   server.close(done);
 });
 
-describe("create and get galleries and pages", () => {
-  it("can create several galleries", async () => {
-    const testGalleries = await createMockGalleries();
-    expect(testGalleries.length).toBe(mockGalleries.length);
-  });
+describe("create pages and galleries", () => {
   it("can create several pages", async () => {
-    const testPages = await createMockPages();
+    const testPages = await postMockPages();
     expect(testPages.length).toBe(mockPages.length);
+  });
+  it("can create several galleries associated with pages", async () => {
+    const testPages = await postMockPages();
+    const testGalleries = await postMockGalleries(testPages);
+    expect(testGalleries.length).toBe(mockGalleries.length);
+    expect(testGalleries[0]?.PageId).toBe(testPages[1]?.id);
+  });
+  it("can create several photos associated with a gallery", async () => {
+    const testPages = await postMockPages();
+    const testGalleries = await postMockGalleries(testPages);
+    const testPhotos = await postMockPhotos(
+      testGalleries[1]?.id,
+      mockPhotoRefs.blue
+    );
+    expect(testPhotos.length).toBe(mockPhotoRefs.blue.length);
   });
 });
 
 describe("get routes", () => {
   let testGalleries;
   let testPages;
+  let testPhotos;
   beforeAll(async () => {
-    testGalleries = await createMockGalleries();
-    testPages = await createMockPages();
+    testPages = await postMockPages();
+    testGalleries = await postMockGalleries(testPages);
+    testPhotos = await postMockPhotos(testGalleries[1]?.id, mockPhotoRefs.blue);
   });
+
+  describe("page gets", () => {
+    it("can get one page", async () => {
+      const response = await request(baseUrl).get(testPages[0].path);
+      expect(response.status).toBe(200);
+    });
+    it("can get all pages with auth", async () => {
+      const response = await request(baseUrl)
+        .get("/admin/page")
+        .auth(auth.user, auth.pass);
+      expect(Array.isArray(response.body));
+    });
+  });
+
   describe("gallery gets", () => {
     it("can get one gallery", async () => {
-      const response = await request(baseURL).get(testGalleries[0].path);
+      const response = await request(baseUrl).get(testGalleries[0].path);
       expect(response.status).toBe(200);
     });
     it("can get all galleries with auth", async () => {
-      const response = await request(baseURL)
+      const response = await request(baseUrl)
         .get("/admin/gallery")
         .auth(auth.user, auth.pass);
       expect(Array.isArray(response.body));
     });
   });
 
-  describe("page gets", () => {
-    it("can get one page", async () => {
-      const response = await request(baseURL).get(testPages[0].path);
-      expect(response.status).toBe(302); // json redir
+  describe("photo gets", () => {
+    it("can get one photo", async () => {
+      const response = await request(baseUrl).get(testPhotos[0].path);
+      expect(response.status).toBe(200);
+    });
+    it("can get all photos with auth", async () => {
+      const response = await request(baseUrl)
+        .get("/admin/photo")
+        .auth(auth.user, auth.pass);
+      expect(Array.isArray(response.body));
     });
   });
 });
 
-describe("photo creation", () => {
-  let testGalleries;
-  let testPages;
+describe("activitypub routes", () => {
+  let testPages, testGalleries, testPhotos;
   beforeAll(async () => {
-    testGalleries = await createMockGalleries();
-    testPages = await createMockPages();
+    testPages = await postMockPages();
+    testGalleries = await postMockGalleries(testPages);
+    testPhotos = [
+      await postMockPhotos(testGalleries[5]?.id, mockPhotoRefs.red),
+      await postMockPhotos(testGalleries[6]?.id, mockPhotoRefs.green),
+      await postMockPhotos(testGalleries[7]?.id, mockPhotoRefs.blue),
+    ];
   });
-  // create galleries and pages
-  it("can post a single photo to a gallery", async () => {
-    const response = await request(baseURL)
-      .post("/admin/photo")
-      .type("form")
-      .auth(...auth)
-      .field("target", testGalleries[0]?.id)
-      .attach("photos", mockPhotoRefs.red[0]);
-    expect(response.status).toBe(302);
-    expect(response.header.location).toBe(testGalleries[0].path);
-    const redir = await request(baseURL).get(response.header.location);
-    expect(redir.status).toBe(200);
-    expect(redir.text).toContain(testGalleries[0].title);
+  it("can webfinger a page", async () => {
+    const response = await request(baseUrl)
+      .get("/.well-known/webfinger")
+      .query({
+        resource: `acct:${testPages[0].slug}@${hostName}`,
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("subject");
+    expect(response.body.subject).toBe(`acct:${testPages[0].slug}@${hostName}`);
   });
-  it("can post multiple photos to a gallery", async () => {
-    const response = await request(baseURL)
-      .post("/admin/photo")
-      .type("form")
-      .auth(...auth)
-      .field("target", testGalleries[1]?.id)
-      .attach("photos", ...mockPhotoRefs.blue);
-    expect(response.status).toBe(302);
-    expect(response.header.location).toBe(testGalleries[1].path);
-    const redir = await request(baseURL).get(response.header.location);
-    expect(redir.status).toBe(200);
-    // TODO: check multiple images
-    expect(redir.text).toContain(testGalleries[1].title);
+  it("can get page actor", async () => {
+    const pageUrl = new URL(testPages[1].slug, baseUrl);
+    const actorUrl = new URL(testPages[1].slug + ".json", baseUrl);
+    const outboxUrl = new URL(testPages[1].slug + "/outbox.json", baseUrl);
+    const response = await request(baseUrl).get(actorUrl.pathname);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      "@context": ["https://www.w3.org/ns/activitystreams"],
+      id: actorUrl.href,
+      name: testPages[1].title,
+      outbox: outboxUrl.href,
+      preferredUsername: testPages[1].slug,
+      type: "Person",
+      url: pageUrl.href,
+    });
+  });
+  it("can get outbox summary", async () => {
+    const outboxUrl = new URL(testPages[0].slug + "/outbox.json", baseUrl);
+    const response = await request(baseUrl).get(outboxUrl.pathname);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("totalItems");
+    expect(response.body).toMatchObject({
+      "@context": "https://www.w3.org/ns/activitystreams",
+      id: outboxUrl.href,
+      type: "OrderedCollection",
+      first: outboxUrl.href + "?page=true",
+      last: outboxUrl.href + "?page=true&min=0",
+    });
+  });
+  it("can paginate outbox", async () => {
+    const outboxUrl = new URL(testPages[0].slug + "/outbox.json", baseUrl);
+    const response = await request(baseUrl).get(outboxUrl.pathname).query({
+      page: true,
+    });
+    expect(response.status).toBe(200);
+    expect(response.type).toBe("application/activity+json");
+    expect(response.body).toHaveProperty("totalItems");
+    expect(response.body).toHaveProperty("orderedItems");
+    expect(response.body).toMatchObject({
+      "@context": "https://www.w3.org/ns/activitystreams",
+      id: outboxUrl.href + "?page=true",
+      type: "OrderedCollectionPage",
+      partOf: outboxUrl.href,
+    });
   });
 });

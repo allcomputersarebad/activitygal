@@ -1,7 +1,7 @@
 import express from "express";
 import db from "../models";
-//import { URL } from "url";
-//const baseUrl = new URL(process.env.PROTOCOL + process.env.DOMAIN);
+
+import { Actor, Activity } from "../activity";
 
 const galleryRouter = express.Router();
 
@@ -17,7 +17,7 @@ galleryRouter.param("slug", async function (req, res, next, slugParam) {
   next();
 });
 
-galleryRouter.get("/:slug", function (req, res, next) {
+galleryRouter.get("/:slug", async function (req, res, next) {
   console.log("rendering gallery", req.gallery);
   if (!req.gallery) {
     res.status(404); //res.sendStatus(404);
@@ -39,10 +39,22 @@ galleryRouter.get("/:slug", function (req, res, next) {
         ),
       });
     } else if (req.accepts("json")) {
-      //res.json(req.gallery.noteJson(baseUrl));
-      // TODO: restrict outgoing fields
-      res.json(req.gallery);
+      const page = await req.gallery.getPage();
+      const activityGal = new Activity(req.gallery, new Actor(page));
+      res.json(activityGal.create());
     }
+  }
+});
+
+galleryRouter.get("/:slug.json", async function (req, res, next) {
+  res.contentType("application/activity+json");
+  if (req.gallery) {
+    const page = await req.gallery.getPage();
+    const activityGal = new Activity(req.gallery, new Actor(page));
+    res.json(activityGal.create());
+  } else {
+    res.sendStatus(404);
+    next();
   }
 });
 

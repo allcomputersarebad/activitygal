@@ -1,6 +1,10 @@
 import { URL } from "url";
 
-const base = new URL(process.env.PROTOCOL + process.env.DOMAIN);
+const base = new URL(
+  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
+    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  }`
+);
 
 function webfinger(actor) {
   return {
@@ -29,11 +33,13 @@ class Actor {
     this.profileUrl = new URL(page.path, base);
     this.actorUrl = new URL(page.path + ".json", base);
     this.outboxUrl = new URL(page.path + "/outbox.json", base);
+    this.followersUrl = new URL(page.path + "/followers", base);
 
+    // TODO: query this more deliberately. getGalleries? in outbox?
     this.outboxItems = page.Galleries?.map((gal) => new Activity(gal, this));
 
     //this.ostatusSubscribe = base.href + "/authorize_interaction?uri={uri}"
-    this.acctUri = `acct:${page.slug}@${base.domain}`;
+    this.acctUri = `acct:${page.slug}@${base.hostname}`;
   }
 
   toJSON() {
@@ -61,9 +67,11 @@ class Actor {
     preferredUsername: this.page.slug,
     name: this.page.title,
     summary: this.page.description,
-    published: this.page.createdOn, // TODO: fix, format "2019-06-01T00:00:00Z",
+    published: this.page.createdAt,
     // featured
-    // following, followers, inbox,
+    // following
+    followers: this.followersUrl,
+    // inbox
     // manuallyApprovesFollowers: false,
     // devices, publickey
     // icon: { type: "Image", mediaType: "image/jpeg", url: actor.icon, },
@@ -71,31 +79,35 @@ class Actor {
   });
 
   outbox = (paginate, min, max) =>
-    paginate
-      ? outboxPage(min, max)
+    paginate // TODO: handle weird paginate values
+      ? this.outboxPage(min, max)
       : {
-          // or don't paginate, give summary
           "@context": "https://www.w3.org/ns/activitystreams",
           id: this.outboxUrl,
           type: "OrderedCollection",
-          totalItems: this.actor.Galleries?.length ?? 0, // TODO: count them
-          // TODO: these
-          first: this.paginateUrl(this.outboxUrl), // https://domain.example/actor/outbox.json?page=true"
-          last: this.paginateUrl(this.outboxUrl, 0), //"https://domain.example/actor/outbox.json?min=0&page=true",
+          totalItems: this.outboxItems.length ?? 0,
+          first: this.paginateUrl(this.outboxUrl),
+          last: this.paginateUrl(this.outboxUrl, 0),
         };
 
   outboxPage = (min, max) => ({
     ...this.outbox(false), // outbox summary header
 
     // clobber
-    id: this.paginateUrl(this.outboxUrl, { min, max }),
+    id: this.paginateUrl(this.outboxUrl, min, max),
     type: "OrderedCollectionPage",
 
-    //TODO: filter by min/max, calc next/prev
+    //TODO: calc next/prev
     //next: "", //"https://domain/pagepath.json?max=${nextMax}&page=true",
     //prev: "", //"https://domain/pagepath.json?max=${prevMax}&page=true",
     partOf: this.outboxUrl,
-    orderedItems: this.outboxItems?.map((act) => act.create()), // TODO: min/max
+    // TODO: refine this
+    orderedItems: this.outboxItems
+      ?.filter(
+        ({ timestampId }) =>
+          (min ?? 0) <= timestampId && timestampId <= (max ?? Infinity)
+      )
+      ?.map((act) => act.create()),
   });
 }
 
@@ -103,10 +115,13 @@ class Activity {
   constructor(gallery, actor) {
     this.timestampId = gallery.id;
     this.gallery = gallery;
-    this.actor = actor ?? new Actor(gallery.Page);
+    this.actor = actor;
 
     this.galleryUrl = new URL(gallery.path, base);
-    this.activityUrl = new URL(gallery.path + "/activity.json", base);
+    this.activityUrl = new URL(gallery.path + ".json", base);
+
+    // TODO: pug template?
+    this.noteContent = [gallery.title, gallery.description].join("<br />");
   }
 
   toJSON() {
@@ -114,10 +129,10 @@ class Activity {
   }
 
   create = () => ({
-    id: activityUrl,
+    id: this.activityUrl,
     type: "Create",
-    actor: actorUrl,
-    published: this.gallery.createdOn, // TODO: format "2023-02-07T09:26:45Z",
+    actor: this.actor.profileUrl,
+    published: this.gallery.createdAt,
     to: ["https://www.w3.org/ns/activitystreams#Public"],
     cc: [this.actor.followersUrl],
     object: this,
@@ -125,11 +140,14 @@ class Activity {
 
   note = () => ({
     id: this.galleryUrl,
-    url: this.galleryUrl,
-    content: this.gallery.description,
     type: "note",
+    published: this.gallery.createdAt,
+    url: this.galleryUrl,
     attributedTo: this.actor.actorUrl,
-    attachment: this.gallery.Photos?.map(this.attachPhoto),
+    to: ["https://www.w3.org/ns/activitystreams#Public"],
+    cc: [this.actor.followersUrl],
+    content: this.noteContent,
+    attachment: this.gallery.Photos?.map((p) => this.attachPhoto(p)),
   });
 
   attachPhoto = (photo) => ({

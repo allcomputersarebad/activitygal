@@ -1,18 +1,31 @@
 import "dotenv/config";
 import path from "path";
 
-const dialect = "sqlite";
-
-const storage = {
-  development: path.resolve(
-    process.env.PERSISTENT_STORAGE,
-    process.env.SQLITE_DB
-  ),
-  production: path.resolve(
-    process.env.PERSISTENT_STORAGE,
-    process.env.SQLITE_DB
-  ),
-  testing: ":memory:",
+const database = {
+  production: {
+    uri: process.env.DATABASE_URL,
+    options: {
+      dialect: "postgres",
+      dialectOptions: {
+        // for heroku. TODO: add cert and remove this
+        ssl: { rejectUnauthorized: false },
+      },
+    },
+  },
+  test: {
+    dialect: "sqlite",
+    storage: process.env.DB_TEST
+      ? path.resolve(process.env.DB_TEST)
+      : ":memory:",
+  },
+  development: {
+    dialect: "sqlite",
+    storage: process.env.DB_FILE
+      ? path.resolve(process.env.DB_FILE)
+      : undefined,
+  },
 }[process.env.NODE_ENV];
 
-export { dialect, storage };
+console.log("selected database config", database);
+
+export default database;

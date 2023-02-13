@@ -6,8 +6,6 @@ import { renderFile } from "pug";
 import fs from "fs/promises";
 import path from "path";
 
-const fsRoot = process.env.PERSISTENT_STORAGE;
-
 const adminRouter = express.Router();
 
 adminRouter.get("/", async function (req, res, next) {
@@ -34,33 +32,42 @@ adminRouter.post(
     const toTarget = await db.Gallery.findOne({
       where: { id: targetId },
     });
-    // (await db.Page.findOne({
-    //   where: { id: targetId },
-    // }));
-    // console.log(toTarget);
-    photos.forEach((photo) => {
-      const newPath = path.join(fsRoot, "photo", photo.filename);
-      fs.rename(photo.path, newPath).then(() =>
-        toTarget.createPhoto({
-          type: photo.mimetype,
-          resource: photo.filename,
-          originalname: photo.originalname,
+    // TODO: data per photo
+    const photoUploads = await Promise.all(
+      photos.map((photo) =>
+        fs
+          .copyFile(
+            photo.path,
+            path.join(req.app.settings.photoStorage, photo.filename)
+          )
+          .then(() =>
+            toTarget.createPhoto({
+              type: photo.mimetype,
+              resource: photo.filename,
+              originalname: photo.originalname,
+            })
+          )
+      )
+    );
+
+    // TODO: better json vs html/htmx response
+    if (req.accepts("html")) {
+      const singleGallery = await db.Gallery.findOne({
+        where: { id: req.body.target },
+        attributes: ["id", "title", "description"],
+        include: db.Photo,
+      });
+      res.send(
+        renderFile("views/adminUploadPhotoReload.pug", {
+          galleryTitle: singleGallery.dataValues.title,
+          galleryDescription: singleGallery.dataValues.description,
+          galleryId: singleGallery.dataValues.id,
+          photos: singleGallery.dataValues.Photos,
         })
       );
-    });
-    const singleGallery = await db.Gallery.findOne({
-      where: { id: req.body.target },
-      attributes: ["id", "title", "description"],
-      include: db.Photo,
-    });
-    res.send(
-      renderFile("views/adminUploadPhotoReload.pug", {
-        galleryTitle: singleGallery.dataValues.title,
-        galleryDescription: singleGallery.dataValues.description,
-        galleryId: singleGallery.dataValues.id,
-        photos: singleGallery.dataValues.Photos,
-      })
-    );
+    } else if (req.accepts("json")) {
+      res.json(photoUploads);
+    }
   }
 );
 
@@ -126,39 +133,41 @@ adminRouter.get("/singlepage", async function (req, res) {
 
 adminRouter.post(
   "/gallery",
-  express.urlencoded(),
+  express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("gallery post");
     const galleryId = req.body?.galleryId;
-    console.log("galleryId", galleryId);
-    console.log("req.body", req.body);
     const galleryForm = {
       title:
         typeof req.body?.title === "string"
           ? req.body?.title
           : req.body?.title[0],
       description: req.body?.description,
+      PageId: req.body?.PageId,
     };
+    let responseGallery;
     if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
         where: { id: galleryId },
       });
-      const galleryUpdated = await galleryToUpdate.update(galleryForm);
-      res.redirect("/admin");
+      responseGallery = await galleryToUpdate.update(galleryForm);
     } else {
-      const galleryCreated = await db.Gallery.create(galleryForm);
+      responseGallery = await db.Gallery.create(galleryForm);
+    }
+    if (req.accepts("html")) {
       res.redirect("/admin");
+    } else if (req.accepts("json")) {
+      res.json(responseGallery);
     }
   }
 );
 
 adminRouter.post(
   "/page",
-  express.urlencoded(),
+  express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
     console.log("page post");
     const pageId = req.body?.pageId;
-    //const pageForm = (({ title, description }) => ({ title, description }))(req.body);
     const pageForm = {
       title: req.body?.title,
       description: req.body?.description,

@@ -9,7 +9,7 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   console.log("page param slug", slugParam);
   req.page = await db.Page.findOne({
     where: { slug: slugParam },
-    include: [db.Gallery], // TODO: this properly
+    include: [db.Gallery],
   });
   console.log("got page", req.page);
   next();
@@ -22,12 +22,12 @@ pageRouter.get("/", function (req, res, next) {
 
 /* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
-  page = await db.Page.findOne({
+  const page = await db.Page.findOne({
     where: { slug: "index" },
     include: [db.Gallery],
   });
   res.render("welcome", {
-    ...page,
+    ...(page ?? {}),
     title: page?.title ?? "ActivityGal",
   });
 });
@@ -37,7 +37,6 @@ pageRouter.get("/:slug", function (req, res, next) {
     res.render("index", {
       title: req.page.title,
       //galleries: page?.Galleries,
-      //photos: page?.Photos,
     });
   } else {
     //res.status(404); // TODO: wtf
@@ -52,9 +51,10 @@ pageRouter.get("/:slug.json", function (req, res, next) {
 });
 
 pageRouter.get("/:slug/outbox.json", function (req, res, next) {
+  const { page, min, max } = { ...req.query };
   res.contentType("application/activity+json");
   const pageActor = new Actor(req.page);
-  res.json(pageActor.outbox());
+  res.json(pageActor.outbox(page, min, max));
 });
 
 export default pageRouter;
