@@ -144,8 +144,10 @@ adminRouter.post(
     const galleryForm = {
       title: req.body?.title,
       description: req.body?.description,
-      PageId: req.body?.pageId,
     };
+    const pageAssoc =
+      req.body?.PageId &&
+      (await db.Page.findOne({ where: { id: req.body?.PageId } }));
     let responseGallery;
     if (galleryId) {
       const galleryToUpdate = await db.Gallery.findOne({
@@ -155,9 +157,10 @@ adminRouter.post(
     } else {
       responseGallery = await db.Gallery.create(galleryForm);
     }
-    // upload photos
-    const photoUpdate = req.body.photoId ? true : false;
-    if (photoUpdate) {
+    await responseGallery.setPage(pageAssoc);
+    if (!req.body?.photoId && req.accepts("json")) res.json(responseGallery);
+    else {
+      // upload photos
       console.log("in the photoUpdate route");
       if (typeof req.body.photoId === "string") {
         console.log("i'm a single photo ****");
@@ -185,11 +188,7 @@ adminRouter.post(
           const responsePhoto = photoToUpdate.update(photoForm);
         }
       }
-    }
-    if (req.accepts("html")) {
       res.redirect("/admin");
-    } else if (req.accepts("json")) {
-      res.json(responseGallery);
     }
   }
 );
@@ -209,10 +208,12 @@ adminRouter.post(
         where: { id: pageId },
       });
       const pageUpdated = await pageToUpdate.update(pageForm);
-      res.redirect("/admin");
+      if (req.accepts("json")) res.json(pageUpdated);
+      else res.redirect("/admin");
     } else {
       const pageCreated = await db.Page.create(pageForm);
-      res.redirect("/admin");
+      if (req.accepts("json")) res.json(pageCreated);
+      else res.redirect("/admin");
     }
   }
 );

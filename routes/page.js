@@ -15,11 +15,6 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
   next();
 });
 
-// is this going to break the async function below? maybe.
-pageRouter.get("/", function (req, res, next) {
-  res.render("welcome", { title: "Welcome" });
-});
-
 /* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
   const page = await db.Page.findOne({
@@ -34,10 +29,13 @@ pageRouter.get("/", async function (req, res, next) {
 
 pageRouter.get("/:slug", function (req, res, next) {
   if (req.page) {
-    res.render("index", {
-      title: req.page.title,
-      //galleries: page?.Galleries,
-    });
+    if (req.accepts("json")) res.json(req.page);
+    else if (req.accepts("html")) {
+      res.render("index", {
+        title: req.page.title,
+        //galleries: page?.Galleries,
+      });
+    }
   } else {
     //res.status(404); // TODO: wtf
     next();

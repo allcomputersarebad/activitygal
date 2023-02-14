@@ -143,6 +143,7 @@ const postMockPages = async () => {
   for (let pg of mockPages) {
     const pgResult = await request(baseUrl)
       .post("/admin/page")
+      .accept("json")
       .auth(...auth)
       .type("form")
       .send(pg);
@@ -156,6 +157,7 @@ const postMockGalleries = async (testPages, pageAssoc) => {
   const testGalleries = Array();
   for (let [i, gal] of mockGalleries.entries()) {
     const PageId = testPages[pageAssoc[i] ?? 0]?.id;
+    console.log("associating gallery with page", PageId);
     const sendGal = { ...gal, PageId };
     const galResult = await request(baseUrl)
       .post("/admin/gallery")
