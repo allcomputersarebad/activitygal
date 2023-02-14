@@ -198,13 +198,16 @@ afterAll(function (done) {
 describe("create pages and galleries", () => {
   it("can create several pages", async () => {
     const testPages = await postMockPages();
+    console.log("testPages", testPages);
     expect(testPages.length).toBe(mockPages.length);
   });
   it("can create several galleries associated with pages", async () => {
     const testPages = await postMockPages();
+    console.log("testPages", testPages);
     const testGalleries = await postMockGalleries(testPages);
+    console.log("testGalleries", testGalleries);
     expect(testGalleries.length).toBe(mockGalleries.length);
-    expect(testGalleries[0]?.PageId).toBe(testPages[1]?.id);
+    expect(testGalleries[0]?.pageId).toBe(testPages[1]?.id);
   });
   it("can create several photos associated with a gallery", async () => {
     const testPages = await postMockPages();
@@ -223,8 +226,11 @@ describe("get routes", () => {
   let testPhotos;
   beforeAll(async () => {
     testPages = await postMockPages();
+    console.log("testPages", testPages);
     testGalleries = await postMockGalleries(testPages);
+    console.log("testGalleries", testGalleries);
     testPhotos = await postMockPhotos(testGalleries[1]?.id, mockPhotoRefs.blue);
+    console.log("testPhotos", testPhotos);
   });
 
   describe("page gets", () => {

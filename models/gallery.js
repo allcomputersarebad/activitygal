@@ -58,15 +58,20 @@ export default (db, DataTypes) => {
     Gallery.belongsTo(models.Page);
   };
 
+  /*
   Gallery.addHook("afterUpdate", async (gallery) => {
-    gallery.getPage()?.publishActivities();
+    const pg = await gallery.getPage();
+    await pg?.deliverActivities();
   });
+  */
 
   SequelizeSlugify.slugifyModel(Gallery, {
     source: ["title"],
   });
 
-  Gallery.prototype.toJSON = function () {
+  Gallery.prototype.toJSON = async function () {
+    const pg = await this.getPage();
+    const ph = await this.getPhotos();
     return {
       id: this.id,
       title: this.title,
@@ -74,11 +79,13 @@ export default (db, DataTypes) => {
       slug: this.slug,
       url: this.galleryUrl,
       activity: this.activityId,
-      photos: this.getPhotos().then((photos) => photos.map((p) => p.toJSON())),
+      path: this.path,
+      pageId: pg.id,
+      photos: ph.map((p) => p.toJSON()),
     };
   };
 
-  Gallery.prototype.createNote = function () {
+  Gallery.prototype.createNote = async function () {
     return {
       id: this.activityId,
       type: "Create",
@@ -86,23 +93,25 @@ export default (db, DataTypes) => {
       published: this.createdAt,
       to: ["https://www.w3.org/ns/activitystreams#Public"],
       cc: [this.Page.followersUrl],
-      object: this.note(),
+      object: await this.note(),
     };
   };
 
-  Gallery.prototype.note = function () {
+  Gallery.prototype.note = async function () {
+    const pg = await this.getPage();
+    const ph = await this.getPhotos();
     return {
       id: this.galleryUrl,
       type: "Note",
       published: this.createdAt,
       url: this.galleryUrl,
-      attributedTo: this.Page.actorId,
+      attributedTo: pg.actorId,
       to: ["https://www.w3.org/ns/activitystreams#Public"],
-      cc: [this.Page.followersUrl],
+      cc: [pg.followersUrl],
       content: this.description
         ? [this.title, this.description].join("<br />")
         : this.title,
-      attachment: this.Photos?.map((p) => p.attachment()) || [],
+      attachment: ph?.map((p) => p.attachment()) || [],
     };
   };
 

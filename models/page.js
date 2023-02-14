@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import SequelizeSlugify from "sequelize-slugify";
 
 import { URL } from "url";
@@ -8,6 +10,8 @@ const base = new URL(
     process.env.EXTERNAL_HOST ?? "localhost:3000"
   }`
 );
+
+const testing = Boolean(process.env.NODE_ENV === "test");
 
 const paginateUrl = (url, min, max) => {
   const p = new URL(url);
@@ -94,17 +98,22 @@ export default (db, DataTypes) => {
     });
   };
   Page.addHook("beforeCreate", (page) => {
-    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
-      },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-      },
-    });
+    const { publicKey, privateKey } = testing
+      ? {
+          publicKey: process.env.TEST_PUBKEY,
+          privateKey: process.env.TEST_PRIVKEY,
+        }
+      : crypto.generateKeyPairSync("rsa", {
+          modulusLength: testing ? 1024 : 4096,
+          publicKeyEncoding: {
+            type: "spki",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs8",
+            format: "pem",
+          },
+        });
     page.dataValues.publicKey = publicKey;
     page.dataValues.privateKey = privateKey;
   });
@@ -113,17 +122,17 @@ export default (db, DataTypes) => {
     source: ["title"],
   });
 
-  Page.prototype.toJSON = function () {
+  Page.prototype.toJSON = async function () {
+    const gals = await this.getGalleries();
     return {
       id: this.id,
       title: this.title,
       slug: this.slug,
       url: this.profileUrl,
       actor: this.actorId,
+      path: this.pathtestPages,
       //publicKey: this.publicKey,
-      galleries: this.getGalleries().then((gals) =>
-        gals.map((gal) => gal.toJSON())
-      ),
+      galleries: gals.map((gal) => gal.toJSON()),
     };
   };
 
@@ -225,7 +234,7 @@ export default (db, DataTypes) => {
   };
 
   Page.prototype.deliverActivities = async function () {
-    const followers = await this.getFollowers();
+    const followers = await this.getRemoteUsers();
     followers.forEach(async function (remote) {
       const undeliveredGalleries = await this.getGalleries({
         where: { createdAt: { [db.Sequelize.Op.gt]: remote.lastDelivery } },

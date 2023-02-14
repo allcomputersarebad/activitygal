@@ -1,5 +1,11 @@
 import path from "path";
 
+const base = new URL(
+  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
+    process.env.EXTERNAL_HOST ?? "localhost:3000"
+  }`
+);
+
 export default (db, DataTypes) => {
   const Photo = db.define("Photo", {
     title: { type: DataTypes.STRING },

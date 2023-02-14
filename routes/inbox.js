@@ -53,7 +53,7 @@ inboxRouter.post("/", express.json(), async (req, res) => {
 
   // TODO: handle other activities
   if (type === "Follow") {
-    const followed = await localTarget.addFollower(knownRemoteUser);
+    const followed = await localTarget.addRemoteUser(knownRemoteUser);
     followed.activity = req.body;
 
     // generate accept activity

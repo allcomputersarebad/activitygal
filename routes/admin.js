@@ -135,19 +135,27 @@ adminRouter.post(
   "/gallery",
   express.urlencoded({ extended: true /* shut up deprecated */ }),
   async function (req, res, next) {
-    console.log("gallery post");
+    console.log("gallery post", req);
     const galleryId = req.body?.galleryId;
+    const pageId = req.body?.PageId;
     const galleryForm = {
       // TODO: comprehensive
       title: req.body?.title,
       description: req.body?.description,
-      PageId: req.body?.PageId,
     };
-    const responseGallery = galleryId
-      ? await db.Gallery.findOne({
-          where: { id: galleryId },
-        }).then((galleryToUpdate) => galleryToUpdate.update(galleryForm))
-      : await db.Gallery.create(galleryForm);
+    const pageAssoc =
+      pageId &&
+      (await db.Page.findOne({
+        where: { id: pageId },
+      }));
+    let responseGallery;
+    if (galleryId) {
+      responseGallery = await db.Gallery.findOne({
+        where: { id: galleryId },
+      });
+      await responseGallery.update(galleryForm);
+    } else responseGallery = await db.Gallery.create(galleryForm);
+    if (pageAssoc) await responseGallery.setPage(pageAssoc);
     res.json(responseGallery);
   }
 );
