@@ -27,20 +27,40 @@ export default (db, DataTypes) => {
         return path.join("/photo/", this.resource);
       },
     },
+    photoUrl: {
+      type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+      get() {
+        return new URL(this.path, base);
+      },
+    },
   });
 
   Photo.associate = (models) => {
     Photo.belongsTo(models.Gallery);
   };
 
-  Photo.attachment = () => ({
-    type: "Document",
-    mediaType: this.mediaType, // like "image/png",
-    url: new URL(this.path, base),
-    name: this.altText,
-    //"focalPoint": [ 0.6, 1.0 ], // unnecessary
-    //width, height // necessary?
-  });
+  Photo.prototype.toJSON = function () {
+    return {
+      resource: this.resource,
+      title: this.title,
+      caption: this.caption,
+      description: this.description,
+      mediaType: this.mediaType,
+      path: this.path,
+      url: this.photoUrl,
+    };
+  };
+
+  Photo.prototype.attachment = function () {
+    return {
+      type: "Document",
+      mediaType: this.mediaType, // like "image/png",
+      url: new URL(this.path, base),
+      name: this.altText,
+      //"focalPoint": [ 0.6, 1.0 ], // unnecessary
+      //width, height // necessary?
+    };
+  };
 
   return Photo;
 };

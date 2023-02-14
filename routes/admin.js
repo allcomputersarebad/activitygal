@@ -143,20 +143,12 @@ adminRouter.post(
       description: req.body?.description,
       PageId: req.body?.PageId,
     };
-    let responseGallery;
-    if (galleryId) {
-      const galleryToUpdate = await db.Gallery.findOne({
-        where: { id: galleryId },
-      });
-      responseGallery = await galleryToUpdate.update(galleryForm);
-    } else {
-      responseGallery = await db.Gallery.create(galleryForm);
-    }
-    if (req.accepts("html")) {
-      res.redirect("/admin");
-    } else if (req.accepts("json")) {
-      res.json(responseGallery);
-    }
+    const responseGallery = galleryId
+      ? await db.Gallery.findOne({
+          where: { id: galleryId },
+        }).then((galleryToUpdate) => galleryToUpdate.update(galleryForm))
+      : await db.Gallery.create(galleryForm);
+    res.json(responseGallery);
   }
 );
 
@@ -170,16 +162,12 @@ adminRouter.post(
       title: req.body?.title,
       description: req.body?.description,
     };
-    if (pageId) {
-      const pageToUpdate = await db.Page.findOne({
-        where: { id: pageId },
-      });
-      const pageUpdated = await pageToUpdate.update(pageForm);
-      res.json(pageUpdated);
-    } else {
-      const pageCreated = await db.Page.create(pageForm);
-      res.json(pageCreated);
-    }
+    const responsePage = pageId
+      ? await db.Page.findOne({
+          where: { id: pageId },
+        }).then((pageToUpdate) => pageToUpdate.update(pageForm))
+      : await db.Page.create(pageForm);
+    res.json(responsePage);
   }
 );
 

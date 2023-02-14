@@ -4,7 +4,8 @@ import galleryRouter from "./gallery.js";
 import aboutRouter from "./about.js";
 import contactRouter from "./contact.js";
 import galleriesRouter from "./galleries.js";
-import activityRouter from "./activity.js";
+import webfingerRouter from "./webfinger.js";
+import inboxRouter from "./inbox.js";
 
 export {
   pageRouter,
@@ -13,5 +14,6 @@ export {
   aboutRouter,
   contactRouter,
   galleriesRouter,
-  activityRouter,
+  webfingerRouter,
+  inboxRouter,
 };

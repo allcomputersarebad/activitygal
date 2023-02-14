@@ -9,7 +9,12 @@ pageRouter.param("slug", async function (req, res, next, slugParam) {
     where: { slug: slugParam },
     include: [db.Gallery],
   });
-  console.log("got page", req.page);
+  next();
+});
+
+pageRouter.param("ext", async function (req, res, next, extParam) {
+  console.log("page param ext", extParam);
+  req.ext = extParam;
   next();
 });
 
@@ -21,31 +26,40 @@ pageRouter.get("/", async function (req, res, next) {
   });
   res.render("welcome", {
     ...(page ?? {}),
-    title: page?.title ?? "Welcome",
+    title: page?.title ?? "ActivityGal",
   });
 });
 
-pageRouter.get("/:slug", function (req, res, next) {
+pageRouter.get("/:slug.:ext?", function (req, res) {
   if (req.page) {
-    res.render("index", {
-      title: req.page.title,
-      //galleries: page?.Galleries,
-    });
+    if (req.ext === "json") {
+      res.contentType("application/activity+json");
+      res.json(req.page.actor());
+    } else {
+      if (req.accepts("json")) res.json(req.page);
+      else if (req.accepts("html"))
+        res.render("index", {
+          title: req.page?.title,
+          galleries: req.page?.Galleries,
+        });
+    }
   } else {
-    //res.status(404); // TODO: wtf
+    // TODO: a 404 breaks other routes. how else to handle?
+    //res.status(404);
     next();
   }
 });
 
-pageRouter.get("/:slug.json", function (req, res, next) {
-  res.contentType("application/activity+json");
-  res.json(page.actor());
-});
-
-pageRouter.get("/:slug/outbox.json", function (req, res, next) {
+pageRouter.get("/:slug/outbox", async function (req, res) {
   const { page, min, max } = { ...req.query };
   res.contentType("application/activity+json");
-  res.json(page.outbox(page, min, max));
+  const outboxJson = await req.page.outbox(page, min, max);
+  res.json(outboxJson);
+});
+
+pageRouter.get("/:slug/followers", async function (req, res) {
+  res.contentType("application/activity+json");
+  res.sendStatus(403);
 });
 
 export default pageRouter;

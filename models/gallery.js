@@ -43,7 +43,7 @@ export default (db, DataTypes) => {
           return new URL(this.path, base);
         },
       },
-      activityUrl: {
+      activityId: {
         type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
         get() {
           return new URL(this.path + ".json", base);
@@ -58,33 +58,53 @@ export default (db, DataTypes) => {
     Gallery.belongsTo(models.Page);
   };
 
+  Gallery.addHook("afterUpdate", async (gallery) => {
+    gallery.getPage()?.publishActivities();
+  });
+
   SequelizeSlugify.slugifyModel(Gallery, {
     source: ["title"],
   });
 
-  Gallery.createNote = () => ({
-    id: this.activityUrl,
-    type: "Create",
-    actor: this.Page.profileUrl,
-    published: this.createdAt,
-    to: ["https://www.w3.org/ns/activitystreams#Public"],
-    cc: [this.Page.followersUrl],
-    object: this.note(),
-  });
+  Gallery.prototype.toJSON = function () {
+    return {
+      id: this.id,
+      title: this.title,
+      description: this.description,
+      slug: this.slug,
+      url: this.galleryUrl,
+      activity: this.activityId,
+      photos: this.getPhotos().then((photos) => photos.map((p) => p.toJSON())),
+    };
+  };
 
-  Gallery.note = () => ({
-    id: this.galleryUrl,
-    type: "note",
-    published: this.createdAt,
-    url: this.galleryUrl,
-    attributedTo: this.Page.actorUrl,
-    to: ["https://www.w3.org/ns/activitystreams#Public"],
-    cc: [this.Page.followersUrl],
-    content: this.description
-      ? [this.title, this.description].join("<br />")
-      : this.title,
-    attachment: this.Photos?.map((p) => p.attachment()) || [],
-  });
+  Gallery.prototype.createNote = function () {
+    return {
+      id: this.activityId,
+      type: "Create",
+      actor: this.Page.profileUrl,
+      published: this.createdAt,
+      to: ["https://www.w3.org/ns/activitystreams#Public"],
+      cc: [this.Page.followersUrl],
+      object: this.note(),
+    };
+  };
+
+  Gallery.prototype.note = function () {
+    return {
+      id: this.galleryUrl,
+      type: "Note",
+      published: this.createdAt,
+      url: this.galleryUrl,
+      attributedTo: this.Page.actorId,
+      to: ["https://www.w3.org/ns/activitystreams#Public"],
+      cc: [this.Page.followersUrl],
+      content: this.description
+        ? [this.title, this.description].join("<br />")
+        : this.title,
+      attachment: this.Photos?.map((p) => p.attachment()) || [],
+    };
+  };
 
   return Gallery;
 };

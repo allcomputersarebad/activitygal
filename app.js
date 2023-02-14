@@ -7,13 +7,15 @@ import express from "express";
 import logger from "morgan";
 const app = express();
 
+app.set("publicHost", process.env.EXTERNAL_HOST ?? false);
+
 app.set(
   "rootUrl",
   `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
     process.env.EXTERNAL_HOST ?? `localhost:${process.env.PORT ?? 3000}`
   }`
 );
-app.set("publicHost", process.env.EXTERNAL_HOST ?? false);
+
 app.set(
   "photoStorage",
   path.resolve(process.env.PERSISTENT_STORAGE ?? __dirname, "photo")
@@ -30,15 +32,17 @@ import {
   aboutRouter,
   contactRouter,
   galleriesRouter,
-  activityRouter,
+  inboxRouter,
+  webfingerRouter,
 } from "./routes";
-app.use("/", pageRouter);
-app.use("/", activityRouter);
-app.use("/gallery", galleryRouter);
 app.use("/photo", express.static(app.get("photoStorage")));
+app.use("/gallery", galleryRouter);
 app.use("/about", aboutRouter);
 app.use("/contact", contactRouter);
 app.use("/galleries", galleriesRouter);
+app.use("/inbox", inboxRouter);
+app.use("/.well-known/webfinger", webfingerRouter);
+app.use("/", pageRouter);
 
 import auth from "./config/auth";
 import basicAuth from "express-basic-auth";
