@@ -80,6 +80,22 @@ block content
                 )
             br
             input(class="btn btn-primary" type="submit" value="Create")
+    br
+    br
+    div(class="card card-compact w-full bg-base-100 shadow-xl")
+      div(class="card-body")
+        h2(class="card-title") Publish to Follower's Inboxes
+        form(action="", method="post", enctype="application/json")
+          div(class="form-control w-full")
+            select(
+              name="pageId"
+              class="select select-primary w-full"
+              )
+              option(value="" selected disabled)
+              +iter-options(pages)
+            br
+          div(id="publish-page")
+            input(class="btn btn-primary" type="submit" value="Publish")
 
 block append scripts
   script(src="https://unpkg.com/htmx.org/dist/ext/json-enc.js" async) 
