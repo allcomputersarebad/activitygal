@@ -12,12 +12,11 @@ const base = new URL(
 
 inboxRouter.post("/", express.json(), async (req, res) => {
   console.log("inbox recieved", req.body);
-  const { actor, type, object } = req.body;
-  const remoteActor = actor ? new URL(actor) : false;
-  if (!actor || !remoteActor || req.hostname !== remoteActor?.hostname)
+  const remoteActorId = req.body?.actor ? new URL(req.body.actor) : false;
+  if (!remoteActorId || req.hostname !== remoteActorId?.hostname)
     return res.sendStatus(400, { error: "Invalid origin actor" });
   const knownRemoteDomain = db.RemoteDomain.findOrCreate({
-    where: { name: remoteActor.hostname },
+    where: { name: remoteActorId.hostname },
   });
   if (knownRemoteDomain.domainBanned) {
     // just drop
@@ -28,13 +27,13 @@ inboxRouter.post("/", express.json(), async (req, res) => {
   // should only reach this if origin domain is reasonable
   // findOrCreate grabs actor json from remote server
   const knownRemoteUser = await db.RemoteUsers.findOrCreate({
-    where: { actorId: remoteActor.href, Domain: knownRemoteDomain },
+    where: { actorId: remoteActorId.href, Domain: knownRemoteDomain },
   });
 
   if (knownRemoteUser.userBanned)
     return res.sendStatus(403, { error: "Origin actor banned" });
 
-  const localUserUrl = new URL(object);
+  const localUserUrl = new URL(req.body.object);
   const localTarget =
     localUserUrl.hostname === base.hostname &&
     (await db.Page.findOne({
@@ -45,14 +44,14 @@ inboxRouter.post("/", express.json(), async (req, res) => {
 
   console.log(
     "inbox",
-    type,
+    req.body.type,
     "recieved for",
     localTarget.title,
     knownRemoteUser.actorId
   );
 
   // TODO: handle other activities
-  if (type === "Follow") {
+  if (req.body.type === "Follow") {
     const followed = await localTarget.addRemoteUser(knownRemoteUser);
     followed.activity = req.body;
 

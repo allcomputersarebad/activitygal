@@ -69,9 +69,7 @@ export default (db, DataTypes) => {
     source: ["title"],
   });
 
-  Gallery.prototype.toJSON = async function () {
-    const pg = await this.getPage();
-    const ph = await this.getPhotos();
+  Gallery.prototype.toJSON = function () {
     return {
       id: this.id,
       title: this.title,
@@ -80,38 +78,40 @@ export default (db, DataTypes) => {
       url: this.galleryUrl,
       activity: this.activityId,
       path: this.path,
-      pageId: pg.id,
-      photos: ph.map((p) => p.toJSON()),
+      pageId: this.PageId,
     };
   };
 
-  Gallery.prototype.createNote = async function () {
+  Gallery.prototype.createNote = function () {
+    const page = Promise.resolve(this.getPage());
     return {
       id: this.activityId,
       type: "Create",
-      actor: this.Page.profileUrl,
+      actor: page.profileUrl,
       published: this.createdAt,
       to: ["https://www.w3.org/ns/activitystreams#Public"],
-      cc: [this.Page.followersUrl],
-      object: await this.note(),
+      cc: [page.followersUrl],
+      object: this.note(),
     };
   };
 
-  Gallery.prototype.note = async function () {
-    const pg = await this.getPage();
-    const ph = await this.getPhotos();
+  Gallery.prototype.note = function () {
+    const page = Promise.resolve(this.getPage());
+    const photos = Promise.resolve(
+      this.getPhotos().then((ps) => ps?.map((p) => p.attachment()))
+    );
     return {
       id: this.galleryUrl,
       type: "Note",
       published: this.createdAt,
       url: this.galleryUrl,
-      attributedTo: pg.actorId,
+      attributedTo: page.actorId,
       to: ["https://www.w3.org/ns/activitystreams#Public"],
-      cc: [pg.followersUrl],
+      cc: [page.followersUrl],
       content: this.description
         ? [this.title, this.description].join("<br />")
         : this.title,
-      attachment: ph?.map((p) => p.attachment()) || [],
+      attachment: photos,
     };
   };
 

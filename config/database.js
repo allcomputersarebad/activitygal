@@ -24,7 +24,7 @@ const database = {
       ? path.resolve(process.env.DB_FILE)
       : undefined,
   },
-}[process.env.NODE_ENV];
+}[process.env.NODE_ENV || "development"];
 
 console.log("selected database config", database);
 

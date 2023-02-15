@@ -94,7 +94,6 @@ export default (db, DataTypes) => {
     Page.hasMany(models.Gallery);
     Page.belongsToMany(models.RemoteUser, {
       through: "Followers",
-      /* as: "Followers", */
     });
   };
   Page.addHook("beforeCreate", (page) => {
@@ -122,17 +121,17 @@ export default (db, DataTypes) => {
     source: ["title"],
   });
 
-  Page.prototype.toJSON = async function () {
-    const gals = await this.getGalleries();
+  Page.prototype.toJSON = function () {
     return {
       id: this.id,
       title: this.title,
       slug: this.slug,
       url: this.profileUrl,
       actor: this.actorId,
-      path: this.pathtestPages,
+      path: this.path,
       //publicKey: this.publicKey,
-      galleries: gals.map((gal) => gal.toJSON()),
+      // TODO: galleries without async??
+      //galleries: gals.map((gal) => gal.toJSON()),
     };
   };
 
@@ -173,46 +172,57 @@ export default (db, DataTypes) => {
       order: [["id", "DESC"]],
     });
     console.log("page of galleries", pageGals);
+    // TODO: min/max is broken
     const maxThisPage = undefined; //await pageGals?.max("id");
     const minThisPage = undefined; //await pageGals?.min("id");
-    const galCreateNotes = pageGals?.map((gal) => gal.createNote()) ?? [];
 
-    const pageContent = {
+    const outboxPageContent = {
       // these two will clobber header items
       id: paginateUrl(this.outboxUrl, min, max),
       type: "OrderedCollectionPage",
 
       partOf: this.outboxUrl,
-      orderedItems: galCreateNotes,
+      orderedItems: pageGals?.map((gal) => gal.createNote(this)),
     };
 
     //"https://domain/pagepath.json?min=${maxThisPage}&page=true",
     if (maxThisPage !== undefined)
-      pageContent.next = paginateUrl(this.outboxUrl, maxThisPage, undefined);
+      outboxPageContent.next = paginateUrl(
+        this.outboxUrl,
+        maxThisPage,
+        undefined
+      );
     //"https://domain/pagepath.json?max=${minThisPage}&page=true"
     if (minThisPage !== undefined)
-      pageContent.prev = paginateUrl(this.outboxUrl, undefined, minThisPage);
+      outboxPageContent.prev = paginateUrl(
+        this.outboxUrl,
+        undefined,
+        minThisPage
+      );
 
-    return pageContent;
+    return outboxPageContent;
   };
 
   Page.prototype.outbox = async function (paginate, min, max) {
     const itemsCount = await this.countGalleries();
-    const outboxHeader = {
-      "@context": "https://www.w3.org/ns/activitystreams",
+    const header = {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        "https://w3id.org/security/v1",
+      ],
       id: this.outboxUrl,
       type: "OrderedCollection",
       totalItems: itemsCount,
       first: paginateUrl(this.outboxUrl),
       last: paginateUrl(this.outboxUrl, 0),
     };
-    const pageContent = await this.outboxPage(min, max);
+    const content = await this.outboxPage(min, max);
 
     return paginate
       ? // outbox with contents
-        { ...outboxHeader, ...pageContent }
+        { ...header, ...content }
       : // or header alone
-        outboxHeader;
+        header;
   };
 
   Page.prototype.signActivity = function (activity, remoteInbox) {
@@ -234,19 +244,21 @@ export default (db, DataTypes) => {
   };
 
   Page.prototype.deliverActivities = async function () {
-    const followers = await this.getRemoteUsers();
-    followers.forEach(async function (remote) {
-      const undeliveredGalleries = await this.getGalleries({
-        where: { createdAt: { [db.Sequelize.Op.gt]: remote.lastDelivery } },
-      });
-      undeliveredGalleries.forEach(async function (gal) {
-        const createNoteActivity = gal.createNote();
-        const activitySignature = this.signActivity(
-          createNoteActivity,
-          remote.inbox
-        );
-        await remote.deliverActivity(createNoteActivity, activitySignature);
-      });
+    await this.getRemoteUsers().then(async (followers) => {
+      for (const follower of followers) {
+        await this.getGalleries({
+          where: { createdAt: { [db.Sequelize.Op.gt]: follower.lastDelivery } },
+        }).then(async (newGals) => {
+          for (const gal of newGals) {
+            const createActivity = gal.createNote();
+            const activitySignature = this.signActivity(
+              createActivity,
+              follower.inbox
+            );
+            await follower.deliverActivity(createActivity, activitySignature);
+          }
+        });
+      }
     });
   };
 

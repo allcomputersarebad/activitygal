@@ -139,20 +139,21 @@ adminRouter.post(
   async function (req, res, next) {
     console.log("gallery post");
     const galleryId = req.body?.galleryId;
-    const pageId = req.body?.PageId;
+    const pageId = req.body?.pageId;
     const photoId = req.body?.photoId;
     const galleryForm = {
       title: req.body?.title,
       description: req.body?.description,
     };
-    const responseGallery = galleryId
-      ? await db.Gallery.findOne({ where: { id: galleryId } })
-      : await db.Gallery.create(galleryForm);
     const pageAssoc =
-      pageId &&
-      (await db.Page.findOne({ where: { id: pageId } }).then((page) =>
-        responseGallery.setPage(page)
-      ));
+      pageId && (await db.Page.findOne({ where: { id: pageId } }));
+    const responseGallery = galleryId
+      ? await db.Gallery.findOne({ where: { id: galleryId } }).then((g) =>
+          g.update(pageId ? { ...galleryForm, PageId: pageId } : galleryForm)
+        )
+      : await db.Gallery.create({ ...galleryForm, PageId: pageId });
+
+    console.log("response gallery", responseGallery);
 
     if (photoId) {
       // upload photos

@@ -156,9 +156,9 @@ const postMockGalleries = async (testPages, pageAssoc) => {
   pageAssoc = pageAssoc ?? mockPageGalleryAssoc;
   const testGalleries = Array();
   for (let [i, gal] of mockGalleries.entries()) {
-    const PageId = testPages[pageAssoc[i] ?? 0]?.id;
-    console.log("associating gallery with page", PageId);
-    const sendGal = { ...gal, PageId };
+    const pageId = testPages[pageAssoc[i] ?? 0]?.id;
+    console.log("associating gallery with page", pageId);
+    const sendGal = { ...gal, pageId };
     const galResult = await request(baseUrl)
       .post("/admin/gallery")
       .accept("json")
@@ -299,11 +299,14 @@ describe("activitypub routes", () => {
   it("can get page actor", async () => {
     const pageUrl = new URL(testPages[1].slug, baseUrl);
     const actorUrl = new URL(testPages[1].slug + ".json", baseUrl);
-    const outboxUrl = new URL(testPages[1].slug + "/outbox.json", baseUrl);
+    const outboxUrl = new URL(testPages[1].slug + "/outbox", baseUrl);
     const response = await request(baseUrl).get(actorUrl.pathname);
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      "@context": ["https://www.w3.org/ns/activitystreams"],
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        "https://w3id.org/security/v1",
+      ],
       id: actorUrl.href,
       name: testPages[1].title,
       outbox: outboxUrl.href,
@@ -313,12 +316,15 @@ describe("activitypub routes", () => {
     });
   });
   it("can get outbox summary", async () => {
-    const outboxUrl = new URL(testPages[0].slug + "/outbox.json", baseUrl);
+    const outboxUrl = new URL(testPages[0].slug + "/outbox", baseUrl);
     const response = await request(baseUrl).get(outboxUrl.pathname);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("totalItems");
     expect(response.body).toMatchObject({
-      "@context": "https://www.w3.org/ns/activitystreams",
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        "https://w3id.org/security/v1",
+      ],
       id: outboxUrl.href,
       type: "OrderedCollection",
       first: outboxUrl.href + "?page=true",
@@ -326,7 +332,7 @@ describe("activitypub routes", () => {
     });
   });
   it("can paginate outbox", async () => {
-    const outboxUrl = new URL(testPages[0].slug + "/outbox.json", baseUrl);
+    const outboxUrl = new URL(testPages[0].slug + "/outbox", baseUrl);
     const response = await request(baseUrl).get(outboxUrl.pathname).query({
       page: true,
     });
@@ -335,7 +341,10 @@ describe("activitypub routes", () => {
     expect(response.body).toHaveProperty("totalItems");
     expect(response.body).toHaveProperty("orderedItems");
     expect(response.body).toMatchObject({
-      "@context": "https://www.w3.org/ns/activitystreams",
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        "https://w3id.org/security/v1",
+      ],
       id: outboxUrl.href + "?page=true",
       type: "OrderedCollectionPage",
       partOf: outboxUrl.href,

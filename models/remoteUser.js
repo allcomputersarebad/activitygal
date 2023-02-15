@@ -50,6 +50,7 @@ export default (db, DataTypes) => {
     RemoteUser.belongsTo(models.RemoteDomain, {
       targetKey: "name",
       as: "Domain",
+      allowNull: false,
     });
     RemoteUser.belongsToMany(models.Page, {
       through: "Followers",
