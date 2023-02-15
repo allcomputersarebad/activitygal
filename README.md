@@ -16,7 +16,7 @@ partial implementation of activitypub with multiple actors managed by a single a
 
 super basic photo management UI, allowing photo upload to galleries, gallery association to pages, some text fields for titling/captioning on each.
 
-incomplete activitypub implementation. interaction does not work. webfinger, json-LD output for pages as "User" actors, galleries as "Note" activities, and individual photos as note attachments. local inbox to accept follow activities, outbox to publish activities for remote fetch, and signing and delivery of activities to inboxes of remote followers.
+incomplete activitypub implementation. interaction does not work. webfinger, json-LD output for pages as "User" actors, galleries as "Note" activities, and individual photos as note attachments. local inbox to accept follow activities, outbox to publish activities for remote fetch, and signing and delivery of activities to inboxes of remote followers. a lot of this work is in branch [activitypub-models](../../tree/activitypub-models)
 
 ## conclusions
 
