@@ -23,13 +23,12 @@ pageRouter.param("ext", async function (req, res, next, extParam) {
 
 /* GET home page. */
 pageRouter.get("/", async function (req, res, next) {
-  const page = await db.Page.findOne({
-    where: { slug: "index" },
-    include: [db.Gallery],
-  });
+  const allPages = await db.Page.findAll();
   res.render("welcome", {
-    ...(page ?? {}),
-    title: page?.title ?? "ActivityGal",
+    pages: allPages.map(({ title, slug }) => ({
+      title,
+      slug,
+    })),
   });
 });
 
