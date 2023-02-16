@@ -9,7 +9,6 @@ import path from "path";
 const adminRouter = express.Router();
 
 adminRouter.get("/", async function (req, res, next) {
-  console.log("admin root", req.auth);
   const allGalleries = await db.Gallery.findAll({
     attributes: ["id", "slug", "title"],
   });
