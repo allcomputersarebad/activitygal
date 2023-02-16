@@ -167,40 +167,37 @@ export default (db, DataTypes) => {
 
   Page.prototype.outboxPage = async function (min, max) {
     const pageGals = await this.getGalleries({
+      // TODO: min/max is broken
       // where: { id: { [db.Sequelize.Op.between]: [min ?? -Infinity, max ?? Infinity] }, },
       limit: 30,
       order: [["id", "DESC"]],
     });
+    const createNotes = await Promise.all(
+      pageGals?.map((gal) => gal.createNote())
+    );
     console.log("page of galleries", pageGals);
+    console.log("create notes", createNotes);
     // TODO: min/max is broken
     const maxThisPage = undefined; //await pageGals?.max("id");
     const minThisPage = undefined; //await pageGals?.min("id");
 
-    const outboxPageContent = {
+    const pgContent = {
       // these two will clobber header items
       id: paginateUrl(this.outboxUrl, min, max),
       type: "OrderedCollectionPage",
 
       partOf: this.outboxUrl,
-      orderedItems: pageGals?.map((gal) => gal.createNote(this)),
+      orderedItems: createNotes,
     };
 
     //"https://domain/pagepath.json?min=${maxThisPage}&page=true",
     if (maxThisPage !== undefined)
-      outboxPageContent.next = paginateUrl(
-        this.outboxUrl,
-        maxThisPage,
-        undefined
-      );
+      pgContent.next = paginateUrl(this.outboxUrl, maxThisPage, undefined);
     //"https://domain/pagepath.json?max=${minThisPage}&page=true"
     if (minThisPage !== undefined)
-      outboxPageContent.prev = paginateUrl(
-        this.outboxUrl,
-        undefined,
-        minThisPage
-      );
+      pgContent.prev = paginateUrl(this.outboxUrl, undefined, minThisPage);
 
-    return outboxPageContent;
+    return pgContent;
   };
 
   Page.prototype.outbox = async function (paginate, min, max) {
@@ -246,6 +243,7 @@ export default (db, DataTypes) => {
   Page.prototype.deliverActivities = async function () {
     await this.getRemoteUsers().then(async (followers) => {
       for (const follower of followers) {
+        console.log("delivering to follower", follower.actorId);
         await this.getGalleries({
           where: { createdAt: { [db.Sequelize.Op.gt]: follower.lastDelivery } },
         }).then(async (newGals) => {
@@ -254,6 +252,11 @@ export default (db, DataTypes) => {
             const activitySignature = this.signActivity(
               createActivity,
               follower.inbox
+            );
+            console.log(
+              "signed activity",
+              createActivity.id,
+              activitySignature
             );
             await follower.deliverActivity(createActivity, activitySignature);
           }

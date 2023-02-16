@@ -8,6 +8,8 @@ const base = new URL(
 
 export default (db, DataTypes) => {
   const Photo = db.define("Photo", {
+    resource: { type: DataTypes.STRING, notEmpty: true, allowNull: false },
+    mediaType: { type: DataTypes.STRING, notEmpty: true, allowNull: false },
     title: { type: DataTypes.STRING },
     caption: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },
@@ -21,12 +23,6 @@ export default (db, DataTypes) => {
         return `${this.description || this.caption || this.title}`;
       },
     },
-    resource: {
-      type: DataTypes.STRING,
-      notEmpty: true,
-      allowNull: false,
-    },
-    mediaType: { type: DataTypes.STRING },
     path: {
       type: DataTypes.VIRTUAL(DataTypes.STRING, ["resource"]),
       get() {

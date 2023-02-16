@@ -15,15 +15,27 @@ galleryRouter.param("slug", async function (req, res, next, slugParam) {
   else next();
 });
 
-galleryRouter.get("/:slug", async function (req, res, next) {
-  console.log("rendering gallery", req.gallery);
-  if (req.accepts("json")) res.json(req.gallery);
-  else if (req.accepts("html"))
+galleryRouter.param("ext", async function (req, res, next, extParam) {
+  console.log("gallery param ext", extParam);
+  req.ext = extParam;
+  next();
+});
+
+galleryRouter.get("/:slug.:ext?", async function (req, res, next) {
+  //if (req.accepts("json")) res.json(req.gallery);
+  //else if (req.accepts("html"))
+  if (req.ext === "json") {
+    console.log("ext .json requested", req.json);
+    res.contentType("application/activity+json");
+    res.json(await req.gallery.note());
+  } else {
+    console.log("rendering gallery", req.gallery);
     res.render("gallery", {
       title: req.gallery.title,
       gallery: req.gallery.dataValues,
       photos: req.gallery?.Photos,
     });
+  }
 });
 
 galleryRouter.get("/:slug.json", async function (req, res, next) {

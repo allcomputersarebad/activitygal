@@ -26,15 +26,21 @@ export default (db, DataTypes) => {
         defaultValue: false,
       },
       inbox: {
-        type: DataTypes.VIRTUAL(DataTypes.STRING, ["userInbox", "Domain"]),
+        type: DataTypes.VIRTUAL(DataTypes.STRING, [
+          "actorInbox",
+          "RemoteDomainId",
+        ]),
         get() {
-          return this.actorInbox || this.Domain.sharedInbox;
+          return this.actorInbox || this.RemoteDomain?.get().sharedInbox;
         },
       },
       banned: {
-        type: DataTypes.VIRTUAL(DataTypes.BOOLEAN, ["userBanned", "Domain"]),
+        type: DataTypes.VIRTUAL(DataTypes.BOOLEAN, [
+          "actorBanned",
+          "RemoteDomainId",
+        ]),
         get() {
-          return this.actorBanned || this.Domain.domainBanned;
+          return this.actorBanned || this.RemoteDomain?.get().domainBanned;
         },
       },
       lastDelivery: {
@@ -48,13 +54,10 @@ export default (db, DataTypes) => {
 
   RemoteUser.associate = (models) => {
     RemoteUser.belongsTo(models.RemoteDomain, {
-      targetKey: "name",
-      as: "Domain",
       allowNull: false,
     });
     RemoteUser.belongsToMany(models.Page, {
       through: "Followers",
-      as: "Following",
     });
   };
 
@@ -84,13 +87,14 @@ export default (db, DataTypes) => {
       const { inbox, preferredUsername } = actorJson;
       if (inbox && preferredUsername) {
         remoteUser.setDataValue("actorJson", actorJson);
-        remoteUser.setDataValue("userInbox", inbox);
+        remoteUser.setDataValue("actorInbox", inbox);
         remoteUser.setDataValue("name", preferredUsername);
       }
     }
   });
 
   RemoteUser.deliverActivity = function (activity, auth) {
+    console.log("delivering activity to", this);
     return new Promise((resolve, reject) => {
       let responseData = "";
       const activityPost = request(

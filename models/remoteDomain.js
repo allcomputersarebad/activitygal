@@ -22,10 +22,7 @@ export default (db, DataTypes) => {
   );
 
   RemoteDomain.associate = (models) => {
-    RemoteDomain.hasMany(models.RemoteUser, {
-      targetKey: "actorId",
-      as: "Users",
-    });
+    RemoteDomain.hasMany(models.RemoteUser);
   };
 
   return RemoteDomain;

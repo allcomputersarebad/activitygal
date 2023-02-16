@@ -5,10 +5,13 @@ const pageRouter = express.Router();
 
 pageRouter.param("slug", async function (req, res, next, slugParam) {
   console.log("page param slug", slugParam);
-  req.page = await db.Page.findOne({
+  const page = await db.Page.findOne({
     where: { slug: slugParam },
     include: [db.Gallery],
   });
+  req.page = page;
+  req.galleries = page?.Galleries;
+  console.log("page selected", req.page);
   next();
 });
 
@@ -30,18 +33,22 @@ pageRouter.get("/", async function (req, res, next) {
   });
 });
 
-pageRouter.get("/:slug.:ext?", function (req, res) {
+pageRouter.get("/:slug.:ext?", function (req, res, next) {
   if (req.page) {
+    console.log("page exists", req.page);
     if (req.ext === "json") {
+      console.log("ext .json requested", req.json);
       res.contentType("application/activity+json");
       res.json(req.page.actor());
     } else {
-      if (req.accepts("json")) res.json(req.page);
-      else if (req.accepts("html"))
-        res.render("index", {
-          title: req.page?.title,
-          galleries: req.page?.Galleries,
-        });
+      //if (req.accepts("json")) res.json(req.page);
+      //else if (req.accepts("html"))
+      console.log("rendering page");
+      console.log("page galleries", req.galleries);
+      res.render("page", {
+        title: req.page?.title,
+        galleries: req.galleries?.map((g) => g.dataValues) ?? [],
+      });
     }
   } else {
     // TODO: a 404 breaks other routes. how else to handle?

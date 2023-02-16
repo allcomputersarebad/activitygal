@@ -8,7 +8,7 @@ galleriesRouter.get("/", async function (req, res, next) {
   console.log("entering galleries route");
   const allGalleries = await db.Gallery.findAll({});
   console.log(allGalleries.map((g) => g.dataValues));
-  res.render("galleries", {
+  res.render("page", {
     title: "Galleries",
     galleries: allGalleries.map(({ title, description, slug }) => ({
       title,

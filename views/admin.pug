@@ -53,6 +53,7 @@ block content
                 )
             br
             input(class="btn btn-primary" type="submit" value="Create") 
+            input(class="btn btn-primary" type="submit" formmethod="Delete" value="Delete") 
     br
     br
     div(class="card card-compact w-full bg-base-100 shadow-xl")
@@ -80,12 +81,13 @@ block content
                 )
             br
             input(class="btn btn-primary" type="submit" value="Create")
+            input(class="btn btn-primary" type="submit" formmethod="Delete" value="Delete") 
     br
     br
     div(class="card card-compact w-full bg-base-100 shadow-xl")
       div(class="card-body")
-        h2(class="card-title") Publish to Follower's Inboxes
-        form(action="", method="post", enctype="application/json")
+        h2(class="card-title") Publish to Followers' Inboxes
+        form(action="/admin/activity", method="post", enctype="application/json")
           div(class="form-control w-full")
             select(
               name="pageId"

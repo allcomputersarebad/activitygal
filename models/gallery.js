@@ -82,8 +82,8 @@ export default (db, DataTypes) => {
     };
   };
 
-  Gallery.prototype.createNote = function () {
-    const page = Promise.resolve(this.getPage());
+  Gallery.prototype.createNote = async function () {
+    const page = await this.getPage();
     return {
       id: this.activityId,
       type: "Create",
@@ -91,15 +91,13 @@ export default (db, DataTypes) => {
       published: this.createdAt,
       to: ["https://www.w3.org/ns/activitystreams#Public"],
       cc: [page.followersUrl],
-      object: this.note(),
+      object: await this.note(),
     };
   };
 
-  Gallery.prototype.note = function () {
-    const page = Promise.resolve(this.getPage());
-    const photos = Promise.resolve(
-      this.getPhotos().then((ps) => ps?.map((p) => p.attachment()))
-    );
+  Gallery.prototype.note = async function () {
+    const page = await this.getPage();
+    const photos = await this.getPhotos();
     return {
       id: this.galleryUrl,
       type: "Note",
@@ -111,7 +109,7 @@ export default (db, DataTypes) => {
       content: this.description
         ? [this.title, this.description].join("<br />")
         : this.title,
-      attachment: photos,
+      attachment: photos?.map((p) => p.attachment()),
     };
   };
 

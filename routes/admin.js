@@ -42,7 +42,7 @@ adminRouter.post(
           )
           .then(() =>
             toTarget.createPhoto({
-              type: photo.mimetype,
+              mediaType: photo.mimetype,
               resource: photo.filename,
               originalname: photo.originalname,
             })
@@ -51,8 +51,9 @@ adminRouter.post(
     );
 
     // TODO: better json vs html/htmx response
-    if (req.accepts("json")) res.json(photoUploads);
-    else {
+    //if (req.accepts("json")) res.json(photoUploads);
+    //else
+    {
       const singleGallery = await db.Gallery.findOne({
         where: { id: req.body.target },
         attributes: ["id", "title", "description"],
@@ -133,6 +134,28 @@ adminRouter.get("/singlepage", async function (req, res) {
   }
 });
 
+adminRouter.delete(
+  "/gallery",
+  express.urlencoded({ extended: true }),
+  async function (req, res) {
+    res.json({
+      galleryId: req.body?.galleryId,
+      deleted: await db.Gallery.destroy({ where: { id: req.body?.galleryId } }),
+    });
+  }
+);
+
+adminRouter.delete(
+  "/page",
+  express.urlencoded({ extended: true }),
+  async function (req, res) {
+    res.json({
+      pageId: req.body?.pageId,
+      deleted: await db.Page.destroy({ where: { id: req.body?.pageId } }),
+    });
+  }
+);
+
 adminRouter.post(
   "/gallery",
   express.urlencoded({ extended: true /* shut up deprecated */ }),
@@ -185,8 +208,9 @@ adminRouter.post(
         }
       }
     }
-    if (req.accepts("json")) res.json(responseGallery);
-    else res.redirect("/admin");
+    //if (req.accepts("json")) res.json(responseGallery);
+    //else
+    res.redirect("/admin");
   }
 );
 
@@ -206,8 +230,19 @@ adminRouter.post(
         }).then((pageToUpdate) => pageToUpdate.update(pageForm))
       : await db.Page.create(pageForm);
 
-    if (req.accepts("json")) res.json(responsePage);
-    else res.redirect("/admin");
+    //if (req.accepts("json")) res.json(responsePage);
+    //else
+    res.redirect("/admin");
+  }
+);
+
+adminRouter.post(
+  "/activity",
+  express.urlencoded({ extended: true /* shut up deprecated */ }),
+  async function (req, res, next) {
+    console.log("delivering galleries by request");
+    const page = await db.Page.findOne({ where: { id: req.body.pageId } });
+    res.json(await page.deliverActivities());
   }
 );
 

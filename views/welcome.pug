@@ -1,5 +1,12 @@
 extends index 
 
+mixin page(pg)
+  .card-title
+    a(href='/' + pg.slug)
+      = pg.title
+      .card-body
+        p= pg.description
+
 block content
     //- div(class="hero min-h-screen bg-base-200")
     //-     div(class="hero-content text-center")
@@ -13,3 +20,11 @@ block content
         h1(class="mb-6 text-5xl font-bold") Hello there, welcome to my photo portfolio! 
         p(class="text-lg") Check out my galleries:
         a(class="btn btn-primary hover underline mt-8 rounded-sm text-black" href="/galleries") Galleries
+              each pg in pages
+        div(class="card card-compact w-96 bg-base-100 shadow-xl")
+          div(class="card-body")
+            h2(class="card-title ")
+              +page(pg)
+            div(class="cards-actions justify-end")
+          g.description
+        br
