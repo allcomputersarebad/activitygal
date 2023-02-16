@@ -9,4 +9,5 @@ div(id="page-data")
         value= pageTitle
       )
   br
+  input(class="btn btn-primary" type="button" hx-delete="/admin/page" hx-include="[name='pageId']" value="Delete") 
   input(class="btn btn-primary" type="submit" value="Update")
