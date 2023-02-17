@@ -99,7 +99,7 @@ export default (db, DataTypes) => {
     const page = await this.getPage();
     const photos = await this.getPhotos();
     return {
-      id: this.galleryUrl,
+      id: this.activityId,
       type: "Note",
       published: this.createdAt,
       url: this.galleryUrl,

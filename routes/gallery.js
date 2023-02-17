@@ -34,6 +34,7 @@ galleryRouter.get("/:slug.:ext?", async function (req, res, next) {
       title: req.gallery.title,
       gallery: req.gallery.dataValues,
       photos: req.gallery?.Photos,
+      activityId: req.gallery?.activityId,
     });
   }
 });

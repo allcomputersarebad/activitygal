@@ -7,6 +7,9 @@ mixin gallery(g)
       .card-body
         p= g.description
 
+block append head 
+  link(href=actorId, rel="alternate", type="application/activity+json")
+
 block content
   div(class="hero-content")
     div(class="w-full")

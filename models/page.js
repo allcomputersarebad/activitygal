@@ -42,13 +42,13 @@ export default (db, DataTypes) => {
         allowNull: false,
         notEmpty: true,
       },
+      slug: { type: DataTypes.STRING, unique: true },
       path: {
         type: DataTypes.VIRTUAL(DataTypes.STRING, ["slug"]),
         get() {
           return "/" + this.slug;
         },
       },
-      slug: { type: DataTypes.STRING, unique: true },
       profileUrl: {
         type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
         get() {
@@ -58,26 +58,32 @@ export default (db, DataTypes) => {
       actorId: {
         type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
         get() {
-          return new URL(this.path + ".json", base);
+          return this.profileUrl + ".json";
         },
       },
-      inboxUrl: {
-        type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+      keyId: {
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["actorId"]),
         get() {
-          // same for all pages
+          return this.actorId + "#/key";
+        },
+      },
+      inbox: {
+        type: DataTypes.VIRTUAL(DataTypes.STRING),
+        get() {
+          // same inbox for all pages
           return new URL("/inbox", base);
         },
       },
-      outboxUrl: {
-        type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+      outbox: {
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["profileUrl"]),
         get() {
-          return new URL(this.path + "/outbox", base);
+          return this.profileUrl + "/outbox";
         },
       },
       followersUrl: {
-        type: DataTypes.VIRTUAL(DataTypes.STRING, ["path"]),
+        type: DataTypes.VIRTUAL(DataTypes.STRING, ["profileUrl"]),
         get() {
-          return new URL(this.path + "/followers", base);
+          return this.profileUrl + "/followers";
         },
       },
       acctUri: {
@@ -144,19 +150,19 @@ export default (db, DataTypes) => {
       type: "Person", // masto compat? can it be something else?
       url: this.profileUrl,
       id: this.actorId,
-      outbox: this.outboxUrl,
-      //endpoints: {sharedInbox: this.inboxUrl},
+      outbox: this.outbox,
+      //endpoints: {sharedInbox: this.inbox},
       preferredUsername: this.slug,
       name: this.title,
       summary: this.description,
       published: this.createdAt,
       // featured, following
       followers: this.followersUrl,
-      inbox: this.inboxUrl,
+      inbox: this.inbox,
       manuallyApprovesFollowers: false,
       // devices,
       publicKey: {
-        id: this.actorId + "#main-key",
+        id: this.keyId,
         owner: this.actorId,
         publicKeyPem: this.publicKey,
       },
@@ -183,35 +189,35 @@ export default (db, DataTypes) => {
 
     const pgContent = {
       // these two will clobber header items
-      id: paginateUrl(this.outboxUrl, min, max),
+      id: paginateUrl(this.outbox, min, max),
       type: "OrderedCollectionPage",
 
-      partOf: this.outboxUrl,
+      partOf: this.outbox,
       orderedItems: createNotes,
     };
 
     //"https://domain/pagepath.json?min=${maxThisPage}&page=true",
     if (maxThisPage !== undefined)
-      pgContent.next = paginateUrl(this.outboxUrl, maxThisPage, undefined);
+      pgContent.next = paginateUrl(this.outbox, maxThisPage, undefined);
     //"https://domain/pagepath.json?max=${minThisPage}&page=true"
     if (minThisPage !== undefined)
-      pgContent.prev = paginateUrl(this.outboxUrl, undefined, minThisPage);
+      pgContent.prev = paginateUrl(this.outbox, undefined, minThisPage);
 
     return pgContent;
   };
 
-  Page.prototype.outbox = async function (paginate, min, max) {
+  Page.prototype.outboxCollection = async function (paginate, min, max) {
     const itemsCount = await this.countGalleries();
     const header = {
       "@context": [
         "https://www.w3.org/ns/activitystreams",
         "https://w3id.org/security/v1",
       ],
-      id: this.outboxUrl,
+      id: this.outbox,
       type: "OrderedCollection",
       totalItems: itemsCount,
-      first: paginateUrl(this.outboxUrl),
-      last: paginateUrl(this.outboxUrl, 0),
+      first: paginateUrl(this.outbox),
+      last: paginateUrl(this.outbox, 0),
     };
     const content = await this.outboxPage(min, max);
 
@@ -236,7 +242,9 @@ export default (db, DataTypes) => {
       )
       .end();
     const sig = pen.sign(this.privateKey).toString("base64");
-    const signature = `keyId="${this.actorId}#main-key",algorithm="rsa-sha256",headers="(request-target) host date digest",signature="${sig}"`;
+    const signature = `keyId="${
+      this.actorId + "#/key"
+    }",algorithm="rsa-sha256",headers="(request-target) host date digest",signature="${sig}"`;
     return { signature, digest, date };
   };
 
@@ -245,7 +253,8 @@ export default (db, DataTypes) => {
       for (const follower of followers) {
         console.log("delivering to follower", follower.actorId);
         await this.getGalleries({
-          where: { createdAt: { [db.Sequelize.Op.gt]: follower.lastDelivery } },
+          //TODO
+          //where: { createdAt: { [db.Sequelize.Op.gt]: follower.lastDelivery } },
         }).then(async (newGals) => {
           for (const gal of newGals) {
             const createActivity = gal.createNote();

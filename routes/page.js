@@ -46,6 +46,7 @@ pageRouter.get("/:slug.:ext?", function (req, res, next) {
       console.log("page galleries", req.galleries);
       res.render("page", {
         title: req.page?.title,
+        actorId: req.page?.actorId,
         galleries: req.galleries?.map((g) => g.dataValues) ?? [],
       });
     }
@@ -59,8 +60,7 @@ pageRouter.get("/:slug.:ext?", function (req, res, next) {
 pageRouter.get("/:slug/outbox", async function (req, res) {
   const { page, min, max } = { ...req.query };
   res.contentType("application/activity+json");
-  const outboxJson = await req.page.outbox(page, min, max);
-  res.json(outboxJson);
+  res.json(await req.page.outboxCollection(page, min, max));
 });
 
 pageRouter.get("/:slug/followers", async function (req, res) {
