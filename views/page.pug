@@ -8,12 +8,12 @@ mixin gallery(g)
         p= g.description
 
 block append head 
-  link(href=actorId, rel="alternate", type="application/activity+json")
+  link(href=page.actorId, rel="alternate", type="application/activity+json")
 
 block content
   div(class="hero-content")
     div(class="w-full")
-      h1(class="mb-6 text-5xl font-bold")=title
+      h1(class="mb-6 text-5xl font-bold")=page.title
     nav
       each g in galleries
         div(class="card card-compact w-96 bg-base-100 shadow-xl")
