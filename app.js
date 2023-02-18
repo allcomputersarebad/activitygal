@@ -1,32 +1,10 @@
 import "dotenv/config";
 
-import fs from "fs";
-import path from "path";
-
 import express from "express";
 import logger from "morgan";
 
-const app = express();
-
-app.set("publicHost", process.env.EXTERNAL_HOST ?? false);
-app.set(
-  "baseUrl",
-  `${process.env.EXTERNAL_PROTOCOL ?? "http"}://${
-    process.env.EXTERNAL_HOST ?? `localhost:${process.env.PORT ?? 3000}`
-  }`
-);
-app.set(
-  "photoStorage",
-  path.join(process.env.PERSISTENT_STORAGE ?? __dirname, "photo")
-);
-
-fs.mkdirSync(app.get("photoStorage"), { recursive: true });
-
-app.use("/", express.static("public"));
-app.use("/photo", express.static(app.get("photoStorage")));
-
-app.set("view engine", "pug");
-app.use(logger("dev"));
+import baseUrl from "./config/external";
+import { publicDir, photoDir } from "./config/dirs";
 
 import {
   adminRouter,
@@ -38,6 +16,20 @@ import {
 
 import auth from "./config/auth";
 import basicAuth from "express-basic-auth";
+
+import db from "./models";
+
+const app = express();
+
+app.set("publicHost", baseUrl.hostname);
+app.set("baseUrl", baseUrl);
+app.set("photoDir", photoDir);
+
+app.use("/", express.static(publicDir));
+app.use("/photo", express.static(photoDir));
+
+app.set("view engine", "pug");
+app.use(logger("dev"));
 
 if (auth) app.use("/admin", basicAuth(auth), adminRouter);
 
@@ -63,7 +55,6 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-import db from "./models";
 db.sequelize.sync();
 
 export default app;
