@@ -186,7 +186,7 @@ let server;
 beforeAll(function (done) {
   db.sequelize.sync().then(() => {
     server = app.listen(process.env.PORT ?? 3000, () => {
-      baseUrl = app.get("rootUrl");
+      baseUrl = app.get("baseUrl");
       hostName = app.get("publicHost") || "localhost";
       done();
     });

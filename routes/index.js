@@ -1,19 +1,7 @@
 import adminRouter from "./admin.js";
-import pageRouter from "./page.js";
 import galleryRouter from "./gallery.js";
-import aboutRouter from "./about.js";
-import contactRouter from "./contact.js";
-import galleriesRouter from "./galleries.js";
-import webfingerRouter from "./webfinger.js";
 import inboxRouter from "./inbox.js";
+import wellknownRouter from "./wellknown.js";
+import pageRouter from "./page.js";
 
-export {
-  pageRouter,
-  adminRouter,
-  galleryRouter,
-  aboutRouter,
-  contactRouter,
-  galleriesRouter,
-  webfingerRouter,
-  inboxRouter,
-};
+export { adminRouter, galleryRouter, inboxRouter, wellknownRouter, pageRouter };

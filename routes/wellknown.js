@@ -1,43 +1,39 @@
 import express from "express";
 import db from "../models";
 
-const webfingerRouter = express.Router();
+const wellknownRouter = express.Router();
 
 // The 'acct' URI Scheme https://www.rfc-editor.org/rfc/rfc7565
 // WebFinger https://www.rfc-editor.org/rfc/rfc7033
 // https://domain.example/.well-known/webfinger?resource=acct:user@domain.example
 // TODO: support more than just acct URIs
-webfingerRouter.get("/", async function (req, res, next) {
+wellknownRouter.get("/webfinger", async function (req, res) {
   console.log("webfinger", req.query.resource);
   const [acct, usr, dom] = req.query.resource.match(/acct:(.*)@(.*)/);
   let page;
   if (
-    acct &&
-    dom === req.hostname && // TODO: correct domain check
+    acct && // TODO: validate protocol fragment?
+    dom === req.hostname && // TODO: better domain validation
     (page = await db.Page.findOne({ where: { slug: usr } }))
-  ) {
+  )
     res.json({
-      subject: page.acctUri,
-      aliases: [page.profileUrl],
+      subject: `acct:${page.slug}@${req.hostname}`,
+      aliases: [page.url],
       links: [
         {
           rel: "http://webfinger.net/rel/profile-page",
           type: "text/html",
-          href: page.profileUrl,
+          href: page.url,
         },
         {
           rel: "self",
           type: "application/activity+json",
           href: page.actorId,
         },
-        // seems unnecessary
-        //{ rel: "http://ostatus.org/schema/1.0/subscribe", template: ostatusSubscribe, },
+        //{ rel: "http://ostatus.org/schema/1.0/subscribe", template: ostatusSubscribe, }, // seems unnecessary
       ],
     });
-  } else {
-    res.status(404);
-    next();
-  }
+  else res.status(404).json({ message: "Not a local user" });
 });
 
-export default webfingerRouter;
+export default wellknownRouter;
