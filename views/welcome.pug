@@ -1,17 +1,17 @@
-extends index 
+extends index
 
 mixin page(pg)
   .card-title
-    a(href='/' + pg.slug)=pg.title
+    a(href="/" + pg.slug)= pg.title
 
 block content
-    div(class="text-center hero-content")
-      div(class="w-full")
-        h1(class="mb-6 text-5xl font-bold") Hello there, welcome to my photo portfolio! 
-        each pg in pages
-          div(class="card card-compact w-96 bg-base-100 shadow-xl")
-            div(class="card-body")
-              h2(class="card-title ")
-                +page(pg)
-              div(class="cards-actions justify-end")
-          br
+  .text-center.hero-content
+    .w-full
+      h1.mb-6.text-5xl.font-bold Hello there, welcome to my photo portfolio!
+      each pg in pages
+        .card.card-compact.w-96.bg-base-100.shadow-xl
+          .card-body
+            h2.card-title
+              +page(pg)
+            .cards-actions.justify-end
+        br

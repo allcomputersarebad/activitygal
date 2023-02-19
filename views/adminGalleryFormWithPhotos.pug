@@ -1,38 +1,28 @@
 mixin photo({path, id, title, caption, description})
-  img(src=path id=id name=title class="preview rounded-box")
-  div(id="photo-data" class="w-full")
+  img.preview.rounded-box(src=path, id=id, name=title)
+  #photo-data.w-full
     label(for="image")
-      span()
-        div(id="label-text")
-          input(
-            name='photoId'
-            type='number'
-            value=id
-            hidden
+        input(name="photoId", type="number", value=id, hidden)
+      span.label-text Title
+        #photo-title
+          input.input.input-bordered.w-full(
+            name="photoTitle",
+            type="text",
+            value=title
           )
-      span(class="label-text") Title
-        div(id="photo-title")
-          input(
-            name='photoTitle' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= title
+      span.label-text Caption
+        #photo-caption
+          input.input.input-bordered.w-full(
+            name="photoCaption",
+            type="text",
+            value=caption
           )
-      span(class="label-text") Caption
-        div(id="photo-caption")
-          input(
-            name='photoCaption' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= caption
-          )
-      span(class="label-text") Description
-        div(id="photo-description")
-          input(
-            name='photoDescription' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= description
+      span.label-text Description
+        #photo-description
+          input.input.input-bordered.w-full(
+            name="photoDescription",
+            type="text",
+            value=description
           )
 
 mixin iter-options(listy)
@@ -40,97 +30,79 @@ mixin iter-options(listy)
     +id-slug-option(thing)
 
 mixin id-slug-option({id, title})
-    label(for=title)
-    option(value=id)=title
+  label(for=title)
+  option(value=id)= title
 
-div(id="gallery-data")
+#gallery-data
   label(for="title")
-    span(class="label-text") Title
-    div(id="gallery-title")
-      input(
-        name='title' 
-        type='text' 
-        class='input input-bordered w-full' 
-        value= galleryTitle
+    span.label-text Title
+    #gallery-title
+      input.input.input-bordered.w-full(
+        name="title",
+        type="text",
+        value=galleryTitle
       )
   br
   label(for="description")
-    span(class="label-text") Description
-    div(id="gallery-description")
-      input(
-        name="description" 
-        type="text" 
-        class="input input-bordered w-full"
-        value= galleryDescription
+    span.label-text Description
+    #gallery-description
+      input.input.input-bordered.w-full(
+        name="description",
+        type="text",
+        value=galleryDescription
       )
     br
   label(for="gallery-page-association")
-    span(class="label-text") Current Page 
-    div(id="current-page")
-      input(
-        name="title"
-        type="text"
-        class="input input-bordered w-full"
-        value= currentPage ? currentPage : "-- No Current Page Association --"
-        disabled
-      )
-    br
-  div(class="w-full") 
-    if currentPage
-      span(class="label-text") Change Current Page Association
-    else 
-      span(class="label-text") Select a Page
-    select(
-      name="pageId"
-      class="select select-primary w-full"
-    )
+    span.label-text Page
+    select.select.select-primary.w-full(name="pageId")
       label(for="page-association")
-      option(value="" selected disabled)
+      if currentPage
+        option(selected, value=currentPage)
+      else
+        option(selected, disabled, value="-- No Page --")
       if pages
         +iter-options(pages)
-  div(id="photo-display-upload")
+  #photo-display-upload
     br
-    span(class="label-text") Gallery Photos
-    section(class="mt-4 mx-auto w-10/12 relative")
-      div(class="grid grid-cols-3 justify-center gap-3")
-      if photos 
+    span.label-text Gallery Photos
+    section.mt-4.mx-auto.relative(class="w-10/12")
+      .grid.grid-cols-3.justify-center.gap-3
+      if photos
       each item in photos
         +photo(item)
         br
       else
-        p(class="alert alert-info-primary ") No photos at the moment!
-        div(class="card card-compact w-full bg-base-100 shadow-xl")
-      div(class="photo-upload")
-        h2(class="card-title") Photo Upload
+        p.alert.alert-info-primary No photos at the moment!
+        .card.card-compact.w-full.bg-base-100.shadow-xl
+      .photo-upload
+        h2.card-title Photo Upload
         form(
-          hx-post="/admin/photo" 
-          hx-target="#photo-display-upload"
+          hx-post="/admin/photo",
+          hx-target="#photo-display-upload",
           hx-encoding="multipart/form-data"
         )
-          div(class="form-control w-full max-w-xs")
-            select(
-              hidden
-              name="target"
-            )
-              option(value=galleryId selected)
+          .form-control.w-full.max-w-xs
+            select(hidden, name="target")
+              option(value=galleryId, selected)
           br
           label(for="photos")
-            span(class="label-text") Photo(s):
-            div(id="photos")
-              input(
-                name="photos" 
-                type="file" 
-                class="file-input file-input-bordered file-input-primary w-full max-w-xs"
-                multiple="multiple" 
-                accept="image/*" 
+            span.label-text Photo(s):
+            #photos
+              input.file-input.file-input-bordered.file-input-primary.w-full.max-w-xs(
+                name="photos",
+                type="file",
+                multiple="multiple",
+                accept="image/*",
                 required="required"
               )
-            div(id="imagePreview")
+            #imagePreview
           br
-          input(
-            class="btn btn-primary" 
-            type="submit" 
-            value="Upload")
+          input.btn.btn-primary(type="submit", value="Upload")
     br
-    input(class="btn btn-primary" type="button" hx-delete="/admin/gallery" hx-include="[name='galleryId']" value="Delete") 
-    input(class="btn btn-primary" type="submit" value="Update") 
+    input.btn.btn-primary(
+      type="button",
+      hx-delete="/admin/gallery",
+      hx-include="[name='galleryId']",
+      value="Delete"
+    ) 
+    input.btn.btn-primary(type="submit", value="Update") 

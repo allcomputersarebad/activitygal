@@ -1,11 +1,7 @@
-div(id="page-data")
+#page-data
   label(for="title")
-    span(class="label-text") Title:
-    div(id="page-title")
-      input(
-        name="title"
-        type="text"
-        class="input input-bordered w-full"
-      )
+    span.label-text Title:
+    #page-title
+      input.input.input-bordered.w-full(name="title", type="text")
   br
-  input(class="btn btn-primary" type="submit" value="Create")
+  input.btn.btn-primary(type="submit", value="Create")

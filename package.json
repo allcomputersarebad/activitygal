@@ -30,6 +30,7 @@
     "sqlite3": "^5.1.4"
   },
   "devDependencies": {
+    "@prettier/plugin-pug": "^2.4.1",
     "@tailwindcss/typography": "tailwindcss/typography",
     "babel-jest": "^29.4.1",
     "daisyui": "^2.50.0",
@@ -37,6 +38,7 @@
     "nodemon": "^2.0.20",
     "postcss": "^8.4.21",
     "postcss-cli": "^10.1.0",
+    "prettier": "^2.8.4",
     "sequelize-cli": "^6.6.0",
     "supertest": "^6.3.3",
     "tailwindcss": "^3.2.6"

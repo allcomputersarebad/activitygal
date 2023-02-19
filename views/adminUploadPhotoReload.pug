@@ -1,83 +1,68 @@
 mixin photo({path, id, title, caption, description})
-  img(src=path id=id name=title class="preview rounded-box")
-  div(id="photo-data" class="w-full")
+  img.preview.rounded-box(src=path, id=id, name=title)
+  #photo-data.w-full
     label(for="image")
-      span()
-        div(id="label-text")
-          input(
-            name='photoId'
-            type='number'
-            value=id
-            hidden
+      span
+        #label-text
+          input(name="photoId", type="number", value=id, hidden)
+      span.label-text Title
+        #photo-title
+          input.input.input-bordered.w-full(
+            name="photoTitle",
+            type="text",
+            value=title
           )
-      span(class="label-text") Title
-        div(id="photo-title")
-          input(
-            name='photoTitle' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= title
+      span.label-text Caption
+        #photo-caption
+          input.input.input-bordered.w-full(
+            name="photoCaption",
+            type="text",
+            value=caption
           )
-      span(class="label-text") Caption
-        div(id="photo-caption")
-          input(
-            name='photoCaption' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= caption
-          )
-      span(class="label-text") Description
-        div(id="photo-description")
-          input(
-            name='photoDescription' 
-            type='text' 
-            class='input input-bordered w-full' 
-            value= description
+      span.label-text Description
+        #photo-description
+          input.input.input-bordered.w-full(
+            name="photoDescription",
+            type="text",
+            value=description
           )
 
-div(id="photo-display-upload")
+#photo-display-upload
   br
-  span(class="label-text") Gallery Photos
-  section(class="mt-4 mx-auto w-10/12 relative")
-    div(class="grid grid-cols-3 justify-center gap-3")
-    if photos 
+  span.label-text Gallery Photos
+  section.mt-4.mx-auto.relative(class="w-10/12")
+    .grid.grid-cols-3.justify-center.gap-3
+    if photos
     each item in photos
       +photo(item)
       br
     else
-      p(class="alert alert-info-primary ") No photos at the moment!
-      div(class="card card-compact w-full bg-base-100 shadow-xl")
-    div(class="photo-upload" id="photo-upload")
-      h2(class="card-title") Photo Upload
+      p.alert.alert-info-primary No photos at the moment!
+      .card.card-compact.w-full.bg-base-100.shadow-xl
+    #photo-upload.photo-upload
+      h2.card-title Photo Upload
       form(
-        htmx-post="/admin/photo" 
-        hx-encoding="multipart/form-data" 
+        htmx-post="/admin/photo",
+        hx-encoding="multipart/form-data",
         htmx-target="#photo-display-upload"
       )
-        div(class="form-control w-full max-w-xs")
-          label(for="target") Location: 
-          select(
-            hidden
-            name="target"
-          )
-            option(value=galleryId selected)
+        .form-control.w-full.max-w-xs
+          label(for="target") Location:
+          select(hidden, name="target")
+            option(value=galleryId, selected)
         br
         label(for="photos")
-          span(class="label-text") Photo(s):
-          div(id="photos")
-            input(
-              name="photos" 
-              type="file" 
-              class="file-input file-input-bordered file-input-primary w-full max-w-xs"
-              multiple="multiple" 
-              accept="image/*" 
+          span.label-text Photo(s):
+          #photos
+            input.file-input.file-input-bordered.file-input-primary.w-full.max-w-xs(
+              name="photos",
+              type="file",
+              multiple="multiple",
+              accept="image/*",
               required="required"
             )
-          div(id="imagePreview")
+          #imagePreview
         br
-        input(
-          class="btn btn-primary" 
-          type="submit" 
-          value="Upload")
+        input.btn.btn-primary(type="submit", value="Upload")
   br
-  input(class="btn btn-primary" type="submit" value="Update") 
+  input.btn.btn-primary(type="submit", value="Update") 

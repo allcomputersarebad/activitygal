@@ -1,14 +1,18 @@
 extends index
 
 mixin photo({path})
-  img(src=path class="rounded-box")
+  img.rounded-box(src=path)
 
-block append head 
-  link(href=gallery.activityId, rel="alternate", type="application/activity+json")
+block append head
+  link(
+    href=gallery.activityId,
+    rel="alternate",
+    type="application/activity+json"
+  )
 
 block content
-  h1(class="mb-6 text-5xl font-bold") #{gallery.title}
-  h2(class="text-lg") #{gallery.description}
+  h1.mb-6.text-5xl.font-bold #{ gallery.title }
+  h2.text-lg #{ gallery.description }
   each item in photos
     +photo(item)
     br

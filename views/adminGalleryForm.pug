@@ -1,20 +1,12 @@
-div(id="gallery-data")
+#gallery-data
   label(for="title")
-    span(class="label-text") Title
-    div(id="gallery-title")
-      input(
-        name='title' 
-        type='text' 
-        class='input input-bordered w-full' 
-      )
+    span.label-text Title
+    #gallery-title
+      input.input.input-bordered.w-full(name="title", type="text")
   br
   label(for="description")
-    span(class="label-text") Description
-    div(id="gallery-description")
-      input(
-        name="description" 
-        type="text" 
-        class="input input-bordered w-full"
-      )
+    span.label-text Description
+    #gallery-description
+      input.input.input-bordered.w-full(name="description", type="text")
     br
-    input(class="btn btn-primary" type="submit" value="Create") 
+    input.btn.btn-primary(type="submit", value="Create") 

@@ -2,24 +2,24 @@ extends index
 
 mixin gallery(g)
   .card-title
-    a(href='/gallery/' + g.slug)
+    a(href="/gallery/" + g.slug)
       = g.title
       .card-body
         p= g.description
 
-block append head 
+block append head
   link(href=page.actorId, rel="alternate", type="application/activity+json")
 
 block content
-  div(class="hero-content")
-    div(class="w-full")
-      h1(class="mb-6 text-5xl font-bold")=page.title
+  .hero-content
+    .w-full
+      h1.mb-6.text-5xl.font-bold= page.title
     nav
       each g in galleries
-        div(class="card card-compact w-96 bg-base-100 shadow-xl")
-          div(class="card-body")
-            h2(class="card-title ")
+        .card.card-compact.w-96.bg-base-100.shadow-xl
+          .card-body
+            h2.card-title
               +gallery(g)
-            div(class="cards-actions justify-end")
+            .cards-actions.justify-end
           g.description
         br
